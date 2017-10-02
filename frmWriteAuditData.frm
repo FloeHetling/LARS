@@ -27,122 +27,20 @@ Begin VB.Form frmWriteAuditData
       Caption         =   "Информация"
       Height          =   4335
       Left            =   120
-      TabIndex        =   10
+      TabIndex        =   13
       Top             =   0
       Width           =   5535
-      Begin VB.Frame frWindows 
-         Caption         =   "Windows"
-         Height          =   1455
-         Left            =   120
-         TabIndex        =   19
-         Top             =   1680
-         Width           =   5295
-         Begin VB.ComboBox cbWindowsOLPSerial 
-            Height          =   315
-            Left            =   1800
-            TabIndex        =   25
-            Tag             =   "infobox,WindowsOLPSerial"
-            Top             =   960
-            Width           =   3375
-         End
-         Begin VB.ComboBox cbWindowsLicenseModel 
-            Height          =   315
-            Left            =   1800
-            TabIndex        =   3
-            Tag             =   "infobox,WindowsLicenseModel"
-            Top             =   600
-            Width           =   3375
-         End
-         Begin VB.ComboBox cbWindowsVersion 
-            Height          =   315
-            Left            =   1800
-            TabIndex        =   2
-            Tag             =   "infobox,WindowsVersion"
-            Top             =   240
-            Width           =   3375
-         End
-         Begin VB.Label lblInfo 
-            Caption         =   "Редакция Windows:"
-            Height          =   255
-            Index           =   3
-            Left            =   120
-            TabIndex        =   22
-            Top             =   240
-            Width           =   1575
-         End
-         Begin VB.Label lblInfo 
-            Caption         =   "Модель лицензии:"
-            Height          =   255
-            Index           =   4
-            Left            =   120
-            TabIndex        =   21
-            Top             =   600
-            Width           =   1575
-         End
-         Begin VB.Label lblInfo 
-            Caption         =   "Номер OLP:"
-            Height          =   255
-            Index           =   5
-            Left            =   120
-            TabIndex        =   20
-            Top             =   960
-            Width           =   1575
-         End
-      End
-      Begin VB.Frame frOffice 
-         Caption         =   "Office"
-         Height          =   1095
-         Left            =   120
-         TabIndex        =   16
-         Top             =   3120
-         Width           =   5295
-         Begin VB.ComboBox cbOfficeLicenseModel 
-            BackColor       =   &H00FFFFFF&
-            Height          =   315
-            Left            =   1800
-            TabIndex        =   5
-            Tag             =   "infobox,OfficeLicenseModel"
-            Top             =   600
-            Width           =   3375
-         End
-         Begin VB.ComboBox cbOfficeVersion 
-            Height          =   315
-            Left            =   1800
-            TabIndex        =   4
-            Tag             =   "infobox,OfficeVersion"
-            Top             =   240
-            Width           =   3375
-         End
-         Begin VB.Label lblInfo 
-            Caption         =   "Редакция Office:"
-            Height          =   255
-            Index           =   6
-            Left            =   120
-            TabIndex        =   18
-            Top             =   240
-            Width           =   1575
-         End
-         Begin VB.Label lblInfo 
-            Caption         =   "Модель лицензии:"
-            Height          =   255
-            Index           =   7
-            Left            =   120
-            TabIndex        =   17
-            Top             =   600
-            Width           =   1575
-         End
-      End
       Begin VB.Frame frCommon 
          Caption         =   "Общая"
          Height          =   1455
          Left            =   120
-         TabIndex        =   12
+         TabIndex        =   22
          Top             =   240
          Width           =   5295
          Begin VB.ComboBox cbWSSerial 
             Height          =   315
             Left            =   1800
-            TabIndex        =   24
+            TabIndex        =   3
             Tag             =   "infobox,WSSerial"
             Top             =   960
             Width           =   3375
@@ -150,7 +48,7 @@ Begin VB.Form frmWriteAuditData
          Begin VB.ComboBox cbWSName 
             Height          =   315
             Left            =   1800
-            TabIndex        =   23
+            TabIndex        =   2
             Tag             =   "infobox,WSName"
             Top             =   600
             Width           =   3375
@@ -166,12 +64,12 @@ Begin VB.Form frmWriteAuditData
             Width           =   3375
          End
          Begin VB.Label lblInfo 
-            Caption         =   "Организация:"
+            Caption         =   "Номер с наклейки:"
             Height          =   255
-            Index           =   0
+            Index           =   2
             Left            =   120
-            TabIndex        =   15
-            Top             =   240
+            TabIndex        =   25
+            Top             =   960
             Width           =   1575
          End
          Begin VB.Label lblInfo 
@@ -179,17 +77,119 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   1
             Left            =   120
-            TabIndex        =   14
+            TabIndex        =   24
             Top             =   600
             Width           =   1575
          End
          Begin VB.Label lblInfo 
-            Caption         =   "Номер с наклейки:"
+            Caption         =   "Организация:"
             Height          =   255
-            Index           =   2
+            Index           =   0
             Left            =   120
-            TabIndex        =   13
+            TabIndex        =   23
+            Top             =   240
+            Width           =   1575
+         End
+      End
+      Begin VB.Frame frOffice 
+         Caption         =   "Office"
+         Height          =   1095
+         Left            =   120
+         TabIndex        =   19
+         Top             =   3120
+         Width           =   5295
+         Begin VB.ComboBox cbOfficeLicenseModel 
+            BackColor       =   &H00FFFFFF&
+            Height          =   315
+            Left            =   1800
+            TabIndex        =   8
+            Tag             =   "infobox,OfficeLicenseModel"
+            Top             =   600
+            Width           =   3375
+         End
+         Begin VB.ComboBox cbOfficeVersion 
+            Height          =   315
+            Left            =   1800
+            TabIndex        =   7
+            Tag             =   "infobox,OfficeVersion"
+            Top             =   240
+            Width           =   3375
+         End
+         Begin VB.Label lblInfo 
+            Caption         =   "Модель лицензии:"
+            Height          =   255
+            Index           =   7
+            Left            =   120
+            TabIndex        =   21
+            Top             =   600
+            Width           =   1575
+         End
+         Begin VB.Label lblInfo 
+            Caption         =   "Редакция Office:"
+            Height          =   255
+            Index           =   6
+            Left            =   120
+            TabIndex        =   20
+            Top             =   240
+            Width           =   1575
+         End
+      End
+      Begin VB.Frame frWindows 
+         Caption         =   "Windows"
+         Height          =   1455
+         Left            =   120
+         TabIndex        =   15
+         Top             =   1680
+         Width           =   5295
+         Begin VB.ComboBox cbWindowsOLPSerial 
+            Height          =   315
+            Left            =   1800
+            TabIndex        =   6
+            Tag             =   "infobox,WindowsOLPSerial"
             Top             =   960
+            Width           =   3375
+         End
+         Begin VB.ComboBox cbWindowsLicenseModel 
+            Height          =   315
+            Left            =   1800
+            TabIndex        =   5
+            Tag             =   "infobox,WindowsLicenseModel"
+            Top             =   600
+            Width           =   3375
+         End
+         Begin VB.ComboBox cbWindowsVersion 
+            Height          =   315
+            Left            =   1800
+            TabIndex        =   4
+            Tag             =   "infobox,WindowsVersion"
+            Top             =   240
+            Width           =   3375
+         End
+         Begin VB.Label lblInfo 
+            Caption         =   "Номер OLP:"
+            Height          =   255
+            Index           =   5
+            Left            =   120
+            TabIndex        =   18
+            Top             =   960
+            Width           =   1575
+         End
+         Begin VB.Label lblInfo 
+            Caption         =   "Модель лицензии:"
+            Height          =   255
+            Index           =   4
+            Left            =   120
+            TabIndex        =   17
+            Top             =   600
+            Width           =   1575
+         End
+         Begin VB.Label lblInfo 
+            Caption         =   "Редакция Windows:"
+            Height          =   255
+            Index           =   3
+            Left            =   120
+            TabIndex        =   16
+            Top             =   240
             Width           =   1575
          End
       End
@@ -206,7 +206,7 @@ Begin VB.Form frmWriteAuditData
          Left            =   840
          Picture         =   "frmWriteAuditData.frx":0004
          Style           =   1  'Graphical
-         TabIndex        =   9
+         TabIndex        =   12
          TabStop         =   0   'False
          ToolTipText     =   "Запустить AIDA64 из сетевого хранилища"
          Top             =   240
@@ -218,7 +218,7 @@ Begin VB.Form frmWriteAuditData
          Left            =   120
          Picture         =   "frmWriteAuditData.frx":1046
          Style           =   1  'Graphical
-         TabIndex        =   8
+         TabIndex        =   11
          TabStop         =   0   'False
          ToolTipText     =   "Запустить коммандную строку локального ПК"
          Top             =   240
@@ -229,7 +229,7 @@ Begin VB.Form frmWriteAuditData
       Caption         =   "Реестр"
       Height          =   1455
       Left            =   5760
-      TabIndex        =   11
+      TabIndex        =   14
       Top             =   2880
       Width           =   1575
       Begin VB.CommandButton cmdSubmit 
@@ -237,7 +237,7 @@ Begin VB.Form frmWriteAuditData
          Default         =   -1  'True
          Height          =   495
          Left            =   120
-         TabIndex        =   7
+         TabIndex        =   9
          Top             =   840
          Width           =   1335
       End
@@ -245,7 +245,7 @@ Begin VB.Form frmWriteAuditData
          Caption         =   "&Прочитать"
          Height          =   495
          Left            =   120
-         TabIndex        =   6
+         TabIndex        =   10
          Top             =   240
          Width           =   1335
       End

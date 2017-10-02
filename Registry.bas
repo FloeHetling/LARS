@@ -1,11 +1,17 @@
 Attribute VB_Name = "modRegistry"
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        ''''''''''''''''''''' МОДУЛЬ ДЛЯ РАБОТЫ С РЕЕСТРОМ '''''''''''''''''''''''
-        ''''''''''''''''''''''' И ФАЙЛАМИ НАСТРОЕК (ini) '''''''''''''''''''''''''
-        ''''''''''''''''''' ВЗЯТ С http://www.thescarms.com ''''''''''''''''''''''
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Option Explicit
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
 
-Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
+
+'В модуле есть ошибка - не обнуляется какая-то переменная
+'в результате от данных планомерно съедается по одному символу при каждом чтении
+'найти и обезвредить)))
+'
+'
+'
+'
 
 Type SECURITY_ATTRIBUTES
     nLength              As Long
@@ -15,19 +21,29 @@ End Type
 
 Public Const MAX_SIZE = 2048
 Public Const MAX_INISIZE = 8192
+
+' Constants for Registry top-level keys
 Public Const HKEY_CURRENT_USER = &H80000001
 Public Const HKEY_LOCAL_MACHINE = &H80000002
 Public Const HKEY_USERS = &H80000003
 Public Const HKEY_DYN_DATA = &H80000006
 Public Const HKEY_CURRENT_CONFIG = &H80000005
 Public Const HKEY_CLASSES_ROOT = &H80000000
+
+' Return values
 Public Const ERROR_SUCCESS = 0&
 Public Const ERROR_FILE_NOT_FOUND = 2&
 Public Const ERROR_MORE_DATA = 234
 Public Const ERROR_NO_MORE_ITEMS = 259&
+
+' RegCreateKeyEx options
 Public Const REG_OPTION_NON_VOLATILE = 0
+
+' RegCreateKeyEx Disposition
 Public Const REG_CREATED_NEW_KEY = &H1
 Public Const REG_OPENED_EXISTING_KEY = &H2
+
+' Registry data types
 Public Const REG_NONE = 0
 Public Const REG_SZ = 1
 Public Const REG_BINARY = 3
@@ -108,7 +124,32 @@ Declare Function GetPrivateProfileInt Lib "kernel32" _
 
 Public Function fDeleteKey(ByVal sTopKey As String, _
     ByVal sSubKey As String, ByVal sKeyName As String) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to:
+'   -   Delete a registry key.
+'
+' sTopKey
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"}
+'
+' sSubKey
+'   -   A registry subkey.
+'
+' sKeyName
+'   -   The name of the key to delete.
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example
+'   lResult = fDeleteKey("HKCU", "Software\YourKey\...\YourApp", "KeyToDelete")
+'   Call fDeleteKey("HKCU", "Software\YourKey\...\YourApp", "KeyToDelete")
+'
+' NOTE:
+'   The key to be deleted cannot be a top-level key
+'   and cannot have any sub-keys.
+'
 Dim lTopKey As Long
 Dim lHandle As Long
 Dim lResult As Long
@@ -136,7 +177,34 @@ End Function
 
 Public Function fDeleteValue(ByVal sTopKeyOrFile As String, _
     ByVal sSubKeyOrSection As String, ByVal sValueName As String) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to:
+'   -   Delete a registry value.
+'   -   Delete an .ini file value.
+'
+' sTopKeyOrIniFile
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"} or
+'   -   The full path of an .ini file (ex. "C:\Windows\MyFile.ini")
+'
+' sSubKeyOrSection
+'   -   A registry subkey or
+'   -   An .ini file section name
+'
+' sValueName
+'   -   A registry entry or
+'   -   An .ini file entry
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example 1   -   Delete a registry value.
+'   lResult = fDeleteValue("HKCU", "Software\YourKey\LastKey\YourApp", "EntryToDelete")
+'
+' Example 2   -   Delete an .ini file value.
+'   lResult = fDeleteValue("C:\Windows\Myfile.ini", "SectionName", "EntryToDelete")
+'
 Dim lTopKey As Long
 Dim lHandle As Long
 Dim lResult As Long
@@ -168,7 +236,30 @@ End Function
 
 Public Function fEnumKey(ByVal sTopKey As String, _
     ByVal sSubKey As String, sValues As String) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to:
+'   -   Enumerate the subkeys of a registry key.
+'
+' sTopKey
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"}
+'
+' sSubKey
+'   -   A registry subkey
+'
+' sValues
+'   -   A returned string of the form:
+'           SubKeyName|SubKeyName|.... SubKeyName||
+'
+'           Where - "|" equals vbNullChar (chr(0)).
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example 1
+'   lResult = fEnumKey("HKLM", "Software\Microsoft", sValues)
+'
 Dim bDone    As Boolean
 Dim lTopKey  As Long
 Dim lHandle  As Long
@@ -180,10 +271,14 @@ On Error GoTo fEnumKeyError
 lResult = 99
 lTopKey = fTopKey(sTopKey)
 If lTopKey = 0 Then GoTo fEnumKeyError
-
+'
+' Open the registry SubKey.
+'
 lResult = RegOpenKeyEx(lTopKey, sSubKey, 0, KEY_ENUMERATE_SUB_KEYS, lHandle)
 If lResult <> ERROR_SUCCESS Then GoTo fEnumKeyError
-
+'
+' Get all subkeys until ERROR_NO_MORE_ITEMS or an error occurs.
+'
 Do While Not bDone
     sKeyName = Space$(MAX_SIZE)
     lResult = RegEnumKey(lHandle, lIndex, sKeyName, MAX_SIZE)
@@ -197,16 +292,54 @@ Do While Not bDone
 Loop
 sValues = sValues & vbNullChar
 If Len(sValues) = 1 Then sValues = sValues & vbNullChar
-
+'
+' Close the key.
+'
 fEnumKey = RegCloseKey(lHandle)
 Exit Function
-
+'
+' Error processing.
+'
 fEnumKeyError:
     fEnumKey = lResult
 End Function
 Public Function fEnumValue(ByVal sTopKeyOrIniFile As String, _
     ByVal sSubKeyOrSection As String, sValues As String) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to:
+'   -   Enumerate the values of a registry key or
+'   -   Enumerate all entries in a particular section of an .ini file.
+'
+' sTopKeyOrIniFile
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"} or
+'   -   The full path of an .ini file (ex. "C:\Windows\MyFile.ini")
+'
+' sSubKeyOrSection
+'   -   A registry subkey or
+'   -   An .ini file section name
+'
+' sValues
+'   -   A returned string of the form:
+'           EntryName=Value|EntryName=Value|.... EntryName=Value||
+'
+'           Where - Value can be a string or binary value.
+'           and   - "|" equals vbNullChar (chr(0)).
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example 1
+'   lResult = fEnumValue("HKCU", "Software\YourKey\LastKey\YourApp", sValues)
+'
+' Example 2
+'   lResult = fEnumValue("C:\Windows\Myfile.ini", "SectionName", sValues)
+'
+' NOTE:
+'   When enumerating registry values, only string, dword and binary values
+'   with a length under 2 bytes (which allows for true/false values) are returned.
+'
 Dim lTopKey    As Long
 Dim lHandle    As Long
 Dim lResult    As Long
@@ -226,14 +359,20 @@ lTopKey = fTopKey(sTopKeyOrIniFile)
 If lTopKey = 0 Then GoTo fEnumValueError
 
 If lTopKey = 1 Then
-    
+    '
+    ' Enumerate an .ini file section.
+    '
     sValues = Space$(MAX_INISIZE)
     lResult = GetPrivateProfileSection(sSubKeyOrSection, sValues, Len(sValues), sTopKeyOrIniFile)
 Else
-    
+    '
+    ' Open the registry SubKey.
+    '
     lResult = RegOpenKeyEx(lTopKey, sSubKeyOrSection, 0, KEY_QUERY_VALUE, lHandle)
     If lResult <> ERROR_SUCCESS Then GoTo fEnumValueError
-    
+    '
+    ' Get all values until ERROR_NO_MORE_ITEMS or an error occurs.
+    '
     Do While Not bDone
         lDataLen = MAX_SIZE
         lValueLen = lDataLen
@@ -278,12 +417,16 @@ Else
     Loop
     sValues = sValues & vbNullChar
     If Len(sValues) = 1 Then sValues = sValues & vbNullChar
-   
+    '
+    ' Close the key.
+    '
     lResult = RegCloseKey(lHandle)
     fEnumValue = lResult
 End If
 Exit Function
-
+'
+' Error processing.
+'
 fEnumValueError:
     fEnumValue = lResult
 End Function
@@ -296,7 +439,51 @@ End Function
 Public Function fReadIniFuzzy(ByVal sIniFile As String, _
     sSection As String, ByVal sIniEntry As String, _
     ByVal sDefault As String, sValue As String) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to:
+'   -   Read a string value from an .ini file when you do not know the exact
+'       name of the section the value is in.
+'
+' sIniFile
+'   -   The full path of an .ini file (ex. "C:\Windows\MyFile.ini")
+'
+' sSection
+'   -   Any complete part of the .ini file section name.
+'       Ex:   [ABC DEF GHI JKL]
+'       sSection Name can be "ABC" or "DEF" or "GHI" or "JKL" but not
+'       a partial value such as "AB" or "HI".
+'
+'       NOTE: if sSection is passed as a variable and not as the actual
+'             string value, sSection will be populated with the
+'             complete section name.
+'
+' sEntry
+'   -   An .ini file entry
+'
+' sDefault
+'   -   The default value to return.
+'
+' sValue
+'   -   The string value read.
+'   -   sDefault if unsuccessful.
+'
+' Return Value
+'   -   0 if sEntry was found, non-zero otherwise.
+'
+' Example 1   -   Read a string value from an .ini file.
+'       Ex:   [ABC DEF GHI JKL]
+'             AppName="My App"
+'
+'   sEntry = "AppName"
+'   lResult = fReadIniFuzzy("C:\Windows\Myfile.ini", "DEF", sEntry, sValue)
+'
+'   Upon completion:
+'       lResult  = 0
+'       sSection = "ABC DEF GHI JKL"
+'       sValue   = "My App"
+'
 Dim sNextChar    As String
 Dim sLine        As String
 Dim sEntry       As String
@@ -323,30 +510,44 @@ Line Input #iFnum, sLine
 Do While Not EOF(iFnum) And Not bDone
     sLine = UCase$(Trim$(sLine))
     bNewSection = False
-    
+    '
+    ' See if line is a section heading.
+    '
     If Left$(sLine, 1) = "[" Then
-        
+        '
+        ' See if section heading contains desired value.
+        '
         sSectionName = sLine
         Dim iPos As Integer
         iPos = InStr(1, sLine, sSection)
         If iPos > 0 Then
-           
+            '
+            ' Be sure the value is not part of a larger value.
+            '
             sNextChar = Mid$(sLine, iPos + iLen, 1)
             If sNextChar = " " Or sNextChar = "]" Then
-                
+                '
+                ' Search this section for the entry.
+                '
                 Line Input #iFnum, sLine
                 bFound = False
                 bNewSection = False
                 Do While Not EOF(iFnum) And Not bFound
-                    
+                    '
+                    ' If we hit a new section, stop.
+                    '
                     sLine = UCase$(Trim$(sLine))
                     If Left$(sLine, 1) = "[" Then
                         bNewSection = True
                         Exit Do
                     End If
-                    
+                    '
+                    ' Entry must start in column 1 to avoid comment lines.
+                    '
                     If InStr(1, sLine, sEntry) = 1 Then
-                        
+                        '
+                        ' If entry found and line is not incomplete, get value.
+                        '
                         iLocOfEq = InStr(1, sLine, "=")
                         If iLocOfEq <> 0 Then
                             sValue = Mid$(sLine, iLocOfEq + 1)
@@ -379,7 +580,55 @@ Public Function fReadValue(ByVal sTopKeyOrFile As String, _
     ByVal sSubKeyOrSection As String, ByVal sValueName As String, _
     ByVal sValueType As String, ByVal vDefault As Variant, _
     vValue As Variant) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to read a:
+'   -   String, 16-bit binary (True|False), 32-bit integer registry value or
+'   -   String or integer value from an .ini file.
+'
+' sTopKeyOrIniFile
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"} or
+'   -   The full path of an .ini file (ex. "C:\Windows\MyFile.ini")
+'
+' sSubKeyOrSection
+'   -   A registry subkey or
+'   -   An .ini file section name
+'
+' sValueName
+'   -   A registry entry or
+'   -   An .ini file entry
+'
+' sValueType
+'   -   "S" to read a string value or
+'   -   "B" to read a 16-bit binary value (applies to registry use only) or
+'   -   "D" to read a 32-bit number value (applies to registry use only).
+'
+' vDefault
+'   -   The default value to return. It can be a string or boolean.
+'
+' vValue
+'   -   The value read. It can be a string or boolean.
+'   -   vDefault if unsuccessful (0 when reading an integer from an .ini file)
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example 1   -   Read a string value from the registry.
+'   lResult = fReadValue("HKCU", "Software\YourKey\LastKey\YourApp", "AppName", "S", "", sValue)
+'
+' Example 2   -   Read a boolean (True|False) value from the registry.
+'   lResult = fReadValue("HKCU", "Software\YourKey\LastKey\YourApp", "AutoHide", "B", False, bValue)
+'
+' Example 3   -   Read an integer value from the registry.
+'   lResult = fReadValue("C:\Windows\Myfile.ini", "SectionName", "NumApps", "D", 12345, lValue)
+'
+' Example 4   -   Read a string value from an .ini file.
+'   lResult = fReadValue("C:\Windows\Myfile.ini", "SectionName", "AppName", "S", "", sValue)
+'
+' Example 5   -   Read an integer value from an .ini file.
+'   lResult = fReadValue("C:\Windows\Myfile.ini", "SectionName", "NumApps", "B", "0", iValue)
+'
 Dim lTopKey     As Long
 Dim lHandle     As Long
 Dim lLenData    As Long
@@ -412,16 +661,23 @@ If lTopKey = 1 Then
         lResult = GetPrivateProfileInt(sSubKeyOrSection, sValueName, lDefault, sTopKeyOrFile)
     End If
 Else
-    
+    '
+    ' Open the registry SubKey.
+    '
     lResult = RegOpenKeyEx(lTopKey, sSubKeyOrSection, 0, KEY_QUERY_VALUE, lHandle)
     If lResult <> ERROR_SUCCESS Then
         fReadValue = lResult
         Exit Function
     End If
-    
+    '
+    ' Get the actual value.
+    '
     Select Case UCase$(sValueType)
         Case "S"
-            
+            '
+            ' String value. The first query gets the string length. The second
+            ' gets the string value.
+            '
             lResult = RegQueryValueEx(lHandle, sValueName, 0, REG_SZ, "", lLenData)
             If lResult = ERROR_MORE_DATA Then
                 sValue = Space(lLenData)
@@ -440,7 +696,7 @@ Else
             Else
                 GoTo fReadValueError
             End If
-        Case "D" 'короче, здесь какая то ЕБАНАЯ ХУЙНЯ, полный разброд в данных. надо разобрать
+        Case "D"
             lLenData = 32
             lResult = RegQueryValueEx(lHandle, sValueName, 0, REG_DWORD, lValue, lLenData)
             If lResult = ERROR_SUCCESS Then
@@ -449,12 +705,16 @@ Else
                 GoTo fReadValueError
             End If
     End Select
-    
+    '
+    ' Close the key.
+    '
     lResult = RegCloseKey(lHandle)
     fReadValue = lResult
 End If
 Exit Function
-
+'
+' Error processing.
+'
 fReadValueError:
     fReadValue = lResult
 End Function
@@ -462,7 +722,14 @@ End Function
 
 Private Function fTopKey(ByVal sTopKeyOrFile As String) As Long
 Dim sDir   As String
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' This function returns:
+'   -   the numeric value of a top level registry key or
+'   -   1 if sTopKey is a valid .ini file or
+'   -   0 otherwise.
+'
 On Error GoTo fTopKeyError
 fTopKey = 0
 Select Case UCase$(sTopKeyOrFile)
@@ -491,7 +758,51 @@ End Function
 Public Function fWriteValue(ByVal sTopKeyOrFile As String, _
     ByVal sSubKeyOrSection As String, ByVal sValueName As String, _
     ByVal sValueType As String, ByVal vValue As Variant) As Long
-
+'
+' Written by Dave Scarmozzino  www.TheScarms.com
+'
+' Use this function to write a:
+'   -   String, 16-bit binary (True|False), 32-bit integer registry value or
+'   -   String value to an .ini file.
+'
+' sTopKeyOrIniFile
+'   -   A top level registry key abbreviation {"HKCU","HKLM","HKU","HKDD","HKCC","HKCR"} or
+'   -   The full path of an .ini file (ex. "C:\Windows\MyFile.ini")
+'
+' sSubKeyOrSection
+'   -   A registry subkey or
+'   -   An .ini file section name
+'
+' sValueName
+'   -   A registry entry or
+'   -   An .ini file entry
+'
+' sValueType
+'   -   "S" to write a string value or
+'   -   "B" to write a 16-bit binary value (applies to registry use only) or
+'   -   "D" to write a 32-bit number value (applies to registry use only).
+'
+' vValue
+'   -   The value to write. It can be a string, binary or integer.
+'
+' Return Value
+'   -   0 if successful, non-zero otherwise.
+'
+' Example 1   -   Write a string value to the registry.
+'   lResult = fWriteValue("HKCU", "Software\YourKey\LastKey\YourApp", "AppName", "S", "MyApp")
+'
+' Example 2   -   Write a True|False value to the registry.
+'   lResult = fWriteValue("HKCU", "Software\YourKey\LastKey\YourApp", "AutoHide", "B", True)
+'
+' Example 3   -   Write an integer value to the registry.
+'   lResult = fWriteValue("HKCU", "Software\YourKey\LastKey\YourApp", "NumOfxxx", "D", 12345)
+'
+' Example 4   -   Write a string value to an .ini file.
+'   lResult = fWriteValue("C:\Windows\Myfile.ini", "SectionName", "AppName", "S", "MyApp")
+'
+' NOTE:
+'   This function cannot write a non-string value to an .ini file.
+'
 Dim hKey                As Long
 Dim lTopKey             As Long
 Dim lOptions            As Long
@@ -513,7 +824,9 @@ lTopKey = fTopKey(sTopKeyOrFile)
 If lTopKey = 0 Then GoTo fWriteValueError
 
 If lTopKey = 1 Then
-    
+    '
+    ' Read the .ini file value.
+    '
     If UCase$(sValueType) = "S" Then
         sValue = vValue
         lResult = WritePrivateProfileString(sSubKeyOrSection, sValueName, sValue, sTopKeyOrFile)
@@ -524,14 +837,20 @@ Else
     sClass = ""
     lOptions = REG_OPTION_NON_VOLATILE
     lsamDesired = KEY_CREATE_SUB_KEY Or KEY_SET_VALUE
-    
+    '
+    ' Create the SubKey or open it if it exists. Return its handle.
+    ' lDisposition will be REG_CREATED_NEW_KEY if the key did not exist.
+    '
     lResult = RegCreateKeyEx(lTopKey, sSubKeyOrSection, 0, sClass, lOptions, _
                   lsamDesired, tSecurityAttributes, lHandle, lDisposition)
     If lResult <> ERROR_SUCCESS Then GoTo fWriteValueError
-    
+    '
+    ' Set the actual value.
+    '
     Select Case UCase$(sValueType)
         Case "S"
             sValue = vValue
+'02/05/2002            lLenData = Len(sValue) + 1
             lLenData = Len(sValue)
             lResult = RegSetValueEx(lHandle, sValueName, 0, REG_SZ, ByVal sValue, lLenData)
         Case "B"
@@ -543,7 +862,9 @@ Else
             lLenData = 4
             lResult = RegSetValueEx(lHandle, sValueName, 0, REG_DWORD, lValue, lLenData)
     End Select
-   
+    '
+    ' Close the key.
+    '
     If lResult = ERROR_SUCCESS Then
         lResult = RegCloseKey(lHandle)
         fWriteValue = lResult
@@ -551,7 +872,11 @@ Else
     End If
 End If
 Exit Function
-
+'
+' Error processing.
+'
 fWriteValueError:
     fWriteValue = lResult
 End Function
+
+
