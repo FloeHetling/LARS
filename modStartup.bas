@@ -16,7 +16,7 @@ Option Explicit
 
 'Глобальные объекты
 ''Используем класс AuditData, обзываем его thisPC
-    Public thisPC As New AuditData
+    Public thisPC As New auditdata
 
 
 Dim CLIArg As String

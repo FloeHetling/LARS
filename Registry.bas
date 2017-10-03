@@ -678,15 +678,21 @@ Else
             ' String value. The first query gets the string length. The second
             ' gets the string value.
             '
+            lLenData = 0
             lResult = RegQueryValueEx(lHandle, sValueName, 0, REG_SZ, "", lLenData)
             If lResult = ERROR_MORE_DATA Then
                 sValue = Space(lLenData)
                 lResult = RegQueryValueEx(lHandle, sValueName, 0, REG_SZ, ByVal sValue, lLenData)
             End If
+            
+            
             If lResult = ERROR_SUCCESS Then  'Remove null character.
-                vValue = Left$(sValue, lLenData - 1)
+                'vValue = Left$(sValue, lLenData - 1) не работает на преобразование чисел
+                'меняем на кастомную функцию
+                vValue = nTrim2(sValue)
             Else
                 GoTo fReadValueError
+            
             End If
         Case "B"
             lLenData = Len(bValue)
@@ -719,6 +725,15 @@ fReadValueError:
     fReadValue = lResult
 End Function
 
+Function nTrim2(theString As String) As String
+    Dim iPos As Long, i As Integer
+    iPos = Len(theString)
+    For i = iPos To 0 Step -1
+        iPos = i
+        If Mid$(theString, i, 1) <> Chr$(0) Then Exit For
+    Next
+    nTrim2 = Left$(theString, iPos)
+End Function
 
 Private Function fTopKey(ByVal sTopKeyOrFile As String) As Long
 Dim sDir   As String
