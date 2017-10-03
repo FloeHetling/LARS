@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Begin VB.Form frmWriteAuditData 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Редактирование данных для аудита"
@@ -14,53 +13,6 @@ Begin VB.Form frmWriteAuditData
    ScaleMode       =   3  'Пиксель
    ScaleWidth      =   525
    StartUpPosition =   2  'CenterScreen
-   Begin MSAdodcLib.Adodc SQL 
-      Height          =   330
-      Left            =   5760
-      Top             =   1560
-      Visible         =   0   'False
-      Width           =   1200
-      _ExtentX        =   2117
-      _ExtentY        =   582
-      ConnectMode     =   0
-      CursorLocation  =   3
-      IsolationLevel  =   -1
-      ConnectionTimeout=   15
-      CommandTimeout  =   30
-      CursorType      =   3
-      LockType        =   3
-      CommandType     =   8
-      CursorOptions   =   0
-      CacheSize       =   50
-      MaxRecords      =   0
-      BOFAction       =   0
-      EOFAction       =   0
-      ConnectStringType=   1
-      Appearance      =   1
-      BackColor       =   -2147483643
-      ForeColor       =   -2147483640
-      Orientation     =   0
-      Enabled         =   -1
-      Connect         =   ""
-      OLEDBString     =   ""
-      OLEDBFile       =   ""
-      DataSourceName  =   ""
-      OtherAttributes =   ""
-      UserName        =   ""
-      Password        =   ""
-      RecordSource    =   ""
-      Caption         =   "Adodc1"
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "MS Sans Serif"
-         Size            =   8.25
-         Charset         =   204
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      _Version        =   393216
-   End
    Begin VB.Timer tDelayedReadData 
       Interval        =   20
       Left            =   6240
@@ -358,6 +310,10 @@ thisPC.RegLoad
                 End If
         End If
     Next
+
+If chkSQLCompare.Value = 1 Then
+cbinfo(2).BackColor = Red
+End If
 End Function
 
 Private Function SaveAuditData()
@@ -389,12 +345,20 @@ tResetColor.Enabled = True
 thisPC.RegSave
 End Function
 
+Private Sub cbinfo_Click(Index As Integer)
+If cbinfo(Index).BackColor = Red Then cbinfo(Index).BackColor = vbWhite
+End Sub
+
 Private Sub cbinfo_KeyPress(Index As Integer, KeyAscii As Integer)
 KeyAscii = AutoMatchCBBox(cbinfo(Index), KeyAscii)
 End Sub
 
 Private Sub cmdLoad_Click()
 Call LoadAuditData
+End Sub
+
+Private Sub cmdOptions_Click()
+thisPCSQL.SQLLoad
 End Sub
 
 Private Sub cmdSubmit_Click()
@@ -415,6 +379,7 @@ tDelayedReadData.Enabled = False
 End Sub
 
 Private Sub tResetColor_Timer()
+Dim ibColor As Integer
     For Each ctlInfobox In Me.Controls
     If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then ctlInfobox.BackColor = vbWhite
     Next

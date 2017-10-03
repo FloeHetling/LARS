@@ -13,10 +13,12 @@ Option Explicit
 ''Оформление
     Public Const Lime = 12648384
     Public Const Sand = 12648447
+    Public Const Red = 12632319
 
 'Глобальные объекты
 ''Используем класс AuditData, обзываем его thisPC
     Public thisPC As New auditdata
+    Public thisPCSQL As New SQLAuditData
 
 
 Dim CLIArg As String
