@@ -25,6 +25,17 @@ Public Function RegPutAuditData(ByVal AuditProp As String, ByVal auditdata As St
 Call fWriteValue("HKLM", "Software\LARS", AuditProp, "S", auditdata)
 End Function
 
+Public Function cbExists(SearchString As String, ComboBoxForCheck As ComboBox) As Boolean
+Dim cItem As Integer
+                For cItem = 0 To ComboBoxForCheck.ListCount Step 1
+                     If SearchString = ComboBoxForCheck.List(cItem) Then
+                     cbExists = True
+                     Exit Function
+                     End If
+                Next cItem
+                cbExists = False
+End Function
+
 Public Function SQLGetAuditData(ByVal AuditProp As String, ByVal auditdata As String)
 
 End Function

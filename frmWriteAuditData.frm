@@ -39,7 +39,9 @@ Begin VB.Form frmWriteAuditData
          Width           =   5295
          Begin VB.ComboBox cbWSSerial 
             Height          =   315
+            ItemData        =   "frmWriteAuditData.frx":0000
             Left            =   1800
+            List            =   "frmWriteAuditData.frx":0002
             TabIndex        =   3
             Tag             =   "infobox,WSSerial"
             Top             =   960
@@ -55,9 +57,9 @@ Begin VB.Form frmWriteAuditData
          End
          Begin VB.ComboBox cbCompany 
             Height          =   315
-            ItemData        =   "frmWriteAuditData.frx":0000
+            ItemData        =   "frmWriteAuditData.frx":0004
             Left            =   1800
-            List            =   "frmWriteAuditData.frx":0002
+            List            =   "frmWriteAuditData.frx":0006
             TabIndex        =   1
             Tag             =   "infobox,Company"
             Top             =   240
@@ -204,7 +206,7 @@ Begin VB.Form frmWriteAuditData
       Begin VB.CommandButton cmdLaunchAIDA 
          Height          =   600
          Left            =   840
-         Picture         =   "frmWriteAuditData.frx":0004
+         Picture         =   "frmWriteAuditData.frx":0008
          Style           =   1  'Graphical
          TabIndex        =   12
          TabStop         =   0   'False
@@ -216,7 +218,7 @@ Begin VB.Form frmWriteAuditData
          CausesValidation=   0   'False
          Height          =   600
          Left            =   120
-         Picture         =   "frmWriteAuditData.frx":1046
+         Picture         =   "frmWriteAuditData.frx":104A
          Style           =   1  'Graphical
          TabIndex        =   11
          TabStop         =   0   'False
@@ -261,14 +263,26 @@ Option Explicit 'повышаем "придирчивость" компил€тора - увеличиваем надежность к
 Dim ctlInfobox As Control
 
 Private Function LoadAuditData()
-Dim ctlIBValue As String
+Dim ctlIBValue As String, cbAuditValue As String
+
 tResetColor.Enabled = True
 thisPC.RegLoad
     For Each ctlInfobox In Me.Controls
         If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
             ctlIBValue = Replace(ctlInfobox.Tag, "infobox,", "")
-            ctlInfobox.BackColor = Sand
-            ctlInfobox.Text = CallByName(thisPC, ctlIBValue, VbGet)
+            cbAuditValue = CallByName(thisPC, ctlIBValue, VbGet)
+                '
+                ' защита от дубликатов в списке
+                ' процедура модул€ MAD cbExists провер€ет, есть ли этот элемент в комбобоксе
+                ' если есть - не добавл€ет
+                '
+                If cbExists(cbAuditValue, ctlInfobox) = False Then
+                    With ctlInfobox
+                     .AddItem (cbAuditValue)
+                     .BackColor = Sand
+                     .ListIndex = 0
+                    End With
+                End If
         End If
     Next
 End Function
@@ -278,17 +292,20 @@ Dim ctlIBVariable As String
 Dim ctlIBValue As String
 tResetColor.Enabled = True
     For Each ctlInfobox In Me.Controls
-    
+        '
         'дл€ всех элементов формы с тегом infobox
         'мы конвертим тег в свойство класса AuditData
         'затем, вызываем класс по имени экземпл€ра
         'и помещаем в его переменные соответствующую инфу из
         'инфобокса, который в данный момент участвует в цикле
-        
+        '
         If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
             ctlIBVariable = Replace(ctlInfobox.Tag, "infobox,", "")
             ctlInfobox.BackColor = Lime
             ctlIBValue = ctlInfobox.Text
+          '
+          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) Ётого здесь нахрен не надо
+          '
             CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
         End If
     Next
