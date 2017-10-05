@@ -24,10 +24,18 @@ Private mvarWindowsOLPSerial As String 'local copy
 Private mvarOfficeVersion As String 'local copy
 Private mvarOfficeLicenseModel As Variant 'local copy
 Public Sub SQLSave()
+MsgBox "TODO: Реализовать механизм записи в SQL. Зачем?"
+MsgBox "Глупый вопрос! Потому что!"
 End Sub
 
-Public Sub SQLLoad()
-    
+Public Sub SQLLoad(ByVal CurrentHostname As String)
+Dim ibName As Variant
+Dim ibValue As String
+
+    For Each ibName In InfoBoxes
+        ibValue = GetSQLData(ibName, CurrentHostname)
+        CallByName Me, ibName, VbLet, ibValue
+    Next
 End Sub
 
 Public Property Let OfficeLicenseModel(ByVal vData As Variant)
@@ -161,7 +169,9 @@ Public Property Get Company() As String
 End Property
 
 
-Private Function GetSQLData(RequestString As String)
+Private Function GetSQLData(ByVal AuditParameter As String, ByVal CurrentHostname As String)
+On Error GoTo GetSqlData_error
+
 Dim SQL As New ADODB.Connection 'ADODB Connection Object
     Dim SQLData As New ADODB.Recordset 'Recordset Object
     Dim SQLRequest As String ' String variable to store sql command
@@ -173,10 +183,27 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
         "User ID=sa;" & _
         "Password=happyness;"
           
-    SQLRequest = "select * from aida.dbo.larspc"
+    SQLRequest = "select " & _
+                "[Юрлицо] as Company," & _
+                "[Office License Model] as OfficeLicenseModel," & _
+                "[Версия Офис] as OfficeVersion," & _
+                "[Windows License Model] as WindowsLicenseModel," & _
+                "[Номер лицензии Windows OLP] as WindowsOLPSerial," & _
+                "[Версия Windows] as WindowsVersion," & _
+                "[Сетевое имя] as WSName," & _
+                "[Серийный номер] as WSSerial " & _
+                "from aida.dbo.larspc where [Сетевое имя] = '" & CurrentHostname & "';"
     
     SQLData.Open SQLRequest, SQL, adOpenKeyset
-    
+    GetSQLData = SQLData.Fields(AuditParameter).Value
     SQL.Close
+    Exit Function
+    
+GetSqlData_error:
+GetSQLData = "Ошибка SQL"
+Dim i
+For i = 0 To SQLData.Fields.Count - 1
+Debug.Print SQLData.Fields(i).Name & " " & SQLData.Fields(i).Type
+Next
 End Function
 

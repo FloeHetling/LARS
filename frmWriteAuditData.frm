@@ -358,7 +358,9 @@ Call LoadAuditData
 End Sub
 
 Private Sub cmdOptions_Click()
-thisPCSQL.SQLLoad
+thisPC.RegLoad
+thisPCSQL.SQLLoad (thisPC.WSName)
+MsgBox thisPCSQL.OfficeLicenseModel
 End Sub
 
 Private Sub cmdSubmit_Click()
