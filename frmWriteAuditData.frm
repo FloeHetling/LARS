@@ -290,9 +290,9 @@ Dim ctlInfobox As Control
 Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
 Private Function LoadAuditData()
-Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String, HadSQLException As Boolean
+Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
 tResetColor.Enabled = True
-HadSQLException = False
+enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
 thisPC.RegLoad
 If chkSQLCompare.Value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
@@ -333,21 +333,19 @@ End If
                                 .Tag = .Tag + ",noreset"
                                 .ListIndex = 0
                             End With
-                    Else
-                    HadSQLException = True
                     End If
                 End If
         End If
     Next
     
     '' отлов ошибки с пустым ответом сервера
-    If HadSQLException = True Then
+    
+    If enumSQLFields = 0 Then
         MsgBox _
-        "Автозаполнение недоступно. Запрос к SQL вернул пустые данные!" & vbCrLf & _
-        " - SQL сервер доступен?" & vbCrLf & _
+        "В базе нет никаких данных по " & HostName & "!" & vbCrLf & _
         " - ПК назван правильно?" & vbCrLf & _
         " " & vbCrLf & _
-        "Исправьте что-нибудь из вышеуказанного" & vbCrLf & _
+        "Исправьте имя ПК или добавьте в БД информацию по нему" & vbCrLf & _
         "и попробуйте еще раз!" & vbCrLf & _
         " " & vbCrLf & _
         "Вы можете продолжить работу с реестром ПК" _

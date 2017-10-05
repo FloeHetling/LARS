@@ -169,9 +169,9 @@ Public Property Get Company() As String
 End Property
 
 
-Private Function GetSQLData(ByVal AuditParameter As String, ByVal CurrentHostname As String)
+Private Function GetSQLData(ByVal AuditParameter As String, ByVal CurrentHostname As String) As String
 On Error GoTo GetSqlData_error
-
+Dim SQLResponse As Variant
 Dim SQL As New ADODB.Connection 'ADODB Connection Object
     Dim SQLData As New ADODB.Recordset 'Recordset Object
     Dim SQLRequest As String ' String variable to store sql command
@@ -200,10 +200,6 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
     Exit Function
     
 GetSqlData_error:
-GetSQLData = "sql_err_nodata"
-Dim i
-For i = 0 To SQLData.Fields.Count - 1
-Debug.Print SQLData.Fields(i).Name & " " & SQLData.Fields(i).Type
-Next
+enumSQLFields = enumSQLFields - 1
 End Function
 

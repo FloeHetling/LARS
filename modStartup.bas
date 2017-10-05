@@ -9,6 +9,7 @@ Option Explicit
     Public LARSver As String
     Public InfoBoxes() As String
     Public HostName As String
+    Public enumSQLFields As Integer 'учет нулей в классе SQLAuditData
       
 'Глобальные константы
 ''Оформление
@@ -25,7 +26,7 @@ Option Explicit
 ''Библиотека и функция получения имени ПК
     Private Const MAX_COMPUTERNAME_LENGTH As Long = 31
     Private Declare Function GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
-
+    
 Dim CLIArg As String
 
 Sub Main()
