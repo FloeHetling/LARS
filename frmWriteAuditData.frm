@@ -218,6 +218,7 @@ Begin VB.Form frmWriteAuditData
          Style           =   1  'Graphical
          TabIndex        =   27
          Top             =   240
+         Visible         =   0   'False
          Width           =   600
       End
       Begin VB.CommandButton cmdLaunchAIDA 
@@ -286,16 +287,25 @@ Attribute VB_Exposed = False
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
 
 Dim ctlInfobox As Control
+Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
 Private Function LoadAuditData()
-Dim ctlIBValue As String, cbAuditValue As String
-
+Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String, HadSQLException As Boolean
 tResetColor.Enabled = True
+HadSQLException = False
+'Заполняем классы
 thisPC.RegLoad
-    For Each ctlInfobox In Me.Controls
-        If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
-            ctlIBValue = Replace(ctlInfobox.Tag, "infobox,", "")
-            cbAuditValue = CallByName(thisPC, ctlIBValue, VbGet)
+If chkSQLCompare.Value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
+    thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
+End If
+    For Each ctlInfobox In Me.Controls                              'Теперь выполняем для каждого инфополя из сформированного в sub_main массива
+        If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then            'если в списке тегов есть тег инфобокса
+            Dim InfoboxTag() As String
+            InfoboxTag = Split(ctlInfobox.Tag, ",")
+            ctlIBValue = InfoboxTag(1)                              'вычленяем из тега имя параметра
+            cbAuditValue = CallByName(thisPC, ctlIBValue, VbGet)    'и вызовом класса AuditData получаем значение в этот параметр
+                
+                ' "infobox,"
                 '
                 ' защита от дубликатов в списке
                 ' процедура модуля MAD cbExists проверяет, есть ли этот элемент в комбобоксе
@@ -308,12 +318,42 @@ thisPC.RegLoad
                      .ListIndex = 0
                     End With
                 End If
+                '
+                'Отдельным блоком проверяем на соответствие параметр по SQL базе
+                'Если не совпадается с cbAuditValue и не содержится в инфобоксе - добавляем в инфобокс и красим его красным
+                '
+                If chkSQLCompare.Value = 1 Then 'делаем это только если стоит флажок "Сравнить с SQL"
+                    cbAuditValueSQL = CallByName(thisPCSQL, ctlIBValue, VbGet)
+                    If (cbAuditValueSQL <> cbAuditValue) _
+                        And (cbExists(cbAuditValueSQL, ctlInfobox) = False) _
+                        And Not cbAuditValueSQL = "sql_err_nodata" Then
+                            With ctlInfobox
+                                .AddItem (cbAuditValueSQL)
+                                .BackColor = Red
+                                .Tag = .Tag + ",noreset"
+                                .ListIndex = 0
+                            End With
+                    Else
+                    HadSQLException = True
+                    End If
+                End If
         End If
     Next
-
-If chkSQLCompare.Value = 1 Then
-cbinfo(2).BackColor = Red
-End If
+    
+    '' отлов ошибки с пустым ответом сервера
+    If HadSQLException = True Then
+        MsgBox _
+        "Автозаполнение недоступно. Запрос к SQL вернул пустые данные!" & vbCrLf & _
+        " - SQL сервер доступен?" & vbCrLf & _
+        " - ПК назван правильно?" & vbCrLf & _
+        " " & vbCrLf & _
+        "Исправьте что-нибудь из вышеуказанного" & vbCrLf & _
+        "и попробуйте еще раз!" & vbCrLf & _
+        " " & vbCrLf & _
+        "Вы можете продолжить работу с реестром ПК" _
+        , vbExclamation + vbOKOnly, LARSver
+        chkSQLCompare.Value = 0
+    End If
 End Function
 
 Private Function SaveAuditData()
@@ -329,7 +369,9 @@ tResetColor.Enabled = True
         'инфобокса, который в данный момент участвует в цикле
         '
         If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
-            ctlIBVariable = Replace(ctlInfobox.Tag, "infobox,", "")
+            Dim InfoboxTag() As String
+            InfoboxTag = Split(ctlInfobox.Tag, ",")
+            ctlIBVariable = InfoboxTag(1)
             ctlInfobox.BackColor = Lime
             ctlIBValue = ctlInfobox.Text
           '
@@ -343,10 +385,20 @@ tResetColor.Enabled = True
     'запускаем внутреннюю процедуру класса, записывающую данные в реестр Windows
     
 thisPC.RegSave
+isDataChanged = False
 End Function
 
+Private Sub cbinfo_Change(Index As Integer)
+isDataChanged = True
+End Sub
+
 Private Sub cbinfo_Click(Index As Integer)
-If cbinfo(Index).BackColor = Red Then cbinfo(Index).BackColor = vbWhite
+If cbinfo(Index).BackColor = Red Then
+    With cbinfo(Index)
+    .BackColor = vbWhite
+    .Tag = Replace(.Tag, ",noreset", "")
+    End With
+End If
 End Sub
 
 Private Sub cbinfo_KeyPress(Index As Integer, KeyAscii As Integer)
@@ -355,12 +407,6 @@ End Sub
 
 Private Sub cmdLoad_Click()
 Call LoadAuditData
-End Sub
-
-Private Sub cmdOptions_Click()
-thisPC.RegLoad
-thisPCSQL.SQLLoad (thisPC.WSName)
-MsgBox thisPCSQL.OfficeLicenseModel
 End Sub
 
 Private Sub cmdSubmit_Click()
@@ -375,6 +421,16 @@ Private Sub cmdLaunchCLI_Click()
 Shell "cmd.exe", vbNormalFocus
 End Sub
 
+Private Sub Form_Unload(Cancel As Integer)
+If isDataChanged = True Then
+    If MsgBox("Есть несохраненные изменения реестра" & vbCrLf & "Вы точно хотите выйти?", vbQuestion & vbYesNo, LARSver) = vbNo Then Cancel = 1
+End If
+'If isSQLSyncCompleted = False Then
+'    if msgbox("Хотите актуализировать записи в SQL по этому ПК?")
+'
+''' Это вообще не приоритет...
+End Sub
+
 Private Sub tDelayedReadData_Timer()
 Call LoadAuditData
 tDelayedReadData.Enabled = False
@@ -383,7 +439,7 @@ End Sub
 Private Sub tResetColor_Timer()
 Dim ibColor As Integer
     For Each ctlInfobox In Me.Controls
-    If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then ctlInfobox.BackColor = vbWhite
+    If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
     Next
 tResetColor.Enabled = False
 End Sub

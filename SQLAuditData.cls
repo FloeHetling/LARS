@@ -200,7 +200,7 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
     Exit Function
     
 GetSqlData_error:
-GetSQLData = "Ошибка SQL"
+GetSQLData = "sql_err_nodata"
 Dim i
 For i = 0 To SQLData.Fields.Count - 1
 Debug.Print SQLData.Fields(i).Name & " " & SQLData.Fields(i).Type

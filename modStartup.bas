@@ -8,6 +8,7 @@ Option Explicit
 'Глобальные переменные
     Public LARSver As String
     Public InfoBoxes() As String
+    Public HostName As String
       
 'Глобальные константы
 ''Оформление
@@ -20,6 +21,10 @@ Option Explicit
     Public thisPC As New auditdata
     Public thisPCSQL As New SQLAuditData
 
+'Подключаемые библиотеки стартового модуля
+''Библиотека и функция получения имени ПК
+    Private Const MAX_COMPUTERNAME_LENGTH As Long = 31
+    Private Declare Function GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
 
 Dim CLIArg As String
 
@@ -34,22 +39,34 @@ LARSver = App.ProductName & ", версия " & App.Major & "." & App.Minor & "." & Ap
     End If
 
 'создаем список имеющихся на форме инфоокон и запихиваем их в публичный массив
+''
+'' Зачем вообще это нужно:
+'' Вот сейчас в программе 8 полей по 8 параметрам данных.
+'' а завтра, к примеру, нужно будет 20. или 3.
+'' Поэтому ПО абстрагировано от прямого обращения к объектам.
+'' Список ведется по элементам формы. Соответственно, чтобы расширить или сузить выборку
+'' необходимо изменить главную форму и добавить соответствующее свойство классам AuditData и SQLAuditData
+''
 Dim Ctrl As Control
 Dim ibIndex As Integer
 Dim ibName As String
 ibIndex = 0
 
-    For Each Ctrl In frmWriteAuditData.Controls
-        If InStr(1, Ctrl.Tag, "infobox") <> 0 Then
-            ReDim Preserve InfoBoxes(ibIndex)
-            ibName = Replace(Ctrl.Tag, "infobox,", "")
-            InfoBoxes(ibIndex) = ibName
-            ibIndex = ibIndex + 1
+    For Each Ctrl In frmWriteAuditData.Controls         'Поэтому, для каждого элемента формы
+        If InStr(1, Ctrl.Tag, "infobox") <> 0 Then      'который имеет слово infobox в свойстве Tag
+            ReDim Preserve InfoBoxes(ibIndex)           'мы обновляем массив Infoboxes типом инфобокса
+            Dim InfoboxTag() As String
+            InfoboxTag = Split(Ctrl.Tag, ",")
+            ibName = InfoboxTag(1)                      'который написан в свойстве Tag после слова "infobox,"
+            InfoBoxes(ibIndex) = ibName                 'присваивая этот тип в виде строки элементу массива с индексом по порядку
+            ibIndex = ibIndex + 1                       'присвоив, берем следующий элемент формы и проверяем/добавляем его
         End If
-    Next
+    Next                                                'на выходе у нас есть список полей для этой формы - массив InfoBoxes,
+                                                        'по которому мы и будем обращаться к процедурам и функциям
 
 'отправляем параметры коммандной строки в переменную и парсим их
-CLIArg = Command$
+'CLIArg = Command$
+CLIArg = "/edit"
     Select Case CLIArg
         
         Case "/edit"
@@ -59,5 +76,14 @@ CLIArg = Command$
         Call PopulateAuditData
                 
     End Select
-        
+
+'получаем в глобальную переменную текущее имя ПК
+Dim dwLen As Long
+    'Создаем буфер
+    dwLen = MAX_COMPUTERNAME_LENGTH + 1
+    HostName = String(dwLen, "X")
+    'Получаем имя ПК
+    GetComputerName HostName, dwLen
+    'Убираем лишние (нулевые) символы
+    HostName = Left(HostName, dwLen)
 End Sub
