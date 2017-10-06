@@ -893,5 +893,3 @@ Exit Function
 fWriteValueError:
     fWriteValue = lResult
 End Function
-
-

@@ -2,14 +2,14 @@ VERSION 5.00
 Begin VB.Form frmWriteAuditData 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Редактирование данных для аудита"
-   ClientHeight    =   4380
+   ClientHeight    =   4440
    ClientLeft      =   45
    ClientTop       =   375
    ClientWidth     =   7875
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   292
+   ScaleHeight     =   296
    ScaleMode       =   3  'Пиксель
    ScaleWidth      =   525
    StartUpPosition =   2  'CenterScreen
@@ -373,7 +373,7 @@ tResetColor.Enabled = True
             ctlInfobox.BackColor = Lime
             ctlIBValue = ctlInfobox.Text
           '
-          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) Этого здесь нахрен не надо
+          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) ?­того здесь нахрен не надо
           '
             CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
         End If
@@ -426,7 +426,7 @@ End If
 'If isSQLSyncCompleted = False Then
 '    if msgbox("Хотите актуализировать записи в SQL по этому ПК?")
 '
-''' Это вообще не приоритет...
+''' ?­то вообще не приоритет...
 End Sub
 
 Private Sub tDelayedReadData_Timer()

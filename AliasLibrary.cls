@@ -6,12 +6,11 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "SQLAuditData"
+Attribute VB_Name = "AliasLibrary"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Attribute VB_Description = "Data fetched from SQL Server"
 Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 'local variable(s) to hold property value(s)
@@ -23,7 +22,6 @@ Private mvarWindowsLicenseModel As String 'local copy
 Private mvarWindowsOLPSerial As String 'local copy
 Private mvarOfficeVersion As String 'local copy
 Private mvarOfficeLicenseModel As String 'local copy
-
 Public Property Let OfficeLicenseModel(ByVal vData As String)
 'used when assigning a value to the property, on the left side of an assignment.
 'Syntax: X.OfficeLicenseModel = 5
@@ -35,21 +33,6 @@ Public Property Get OfficeLicenseModel() As String
 'Syntax: Debug.Print X.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
-
-Public Sub SQLSave()
-MsgBox "TODO: ? еализовать механизм записи в SQL. Зачем?"
-MsgBox "Глупый вопрос! Потому что!"
-End Sub
-
-Public Sub SQLLoad(ByVal CurrentHostname As String)
-Dim ibName As Variant
-Dim ibValue As String
-
-    For Each ibName In InfoBoxes
-        ibValue = GetSQLData(ibName, CurrentHostname)
-        CallByName Me, ibName, VbLet, ibValue
-    Next
-End Sub
 
 Public Property Let OfficeVersion(ByVal vData As String)
 Attribute OfficeVersion.VB_Description = "Версия и редакция Microsoft Office"
@@ -161,42 +144,13 @@ Public Property Get Company() As String
     Company = mvarCompany
 End Property
 
-
-Private Function GetSQLData(ByVal AuditParameter As String, ByVal CurrentHostname As String) As String
-On Error GoTo GetSqlData_error
-Dim SQLResponse As Variant
-Dim SQL As New ADODB.Connection 'ADODB Connection Object
-    Dim SQLData As New ADODB.Recordset 'Recordset Object
-    Dim SQLRequest As String, SQLAPRequest As String ' String variable to store sql command
-    
-    SQL.Open _
-        "Provider = SQLNCLI11.1;" & _
-        "Data Source=WS0006\SQLEXPRESS;" & _
-        "Initial Catalog=AIDA;" & _
-        "User ID=sa;" & _
-        "Password=happyness;"
-        
-'' Вот эту ебаную индусятину
-'    SQLRequest = "select " & _
-'                "[Юрлицо] as Company," & _
-'                "[Office License Model] as OfficeLicenseModel," & _
-'                "[Версия Офис] as OfficeVersion," & _
-'                "[Windows License Model] as WindowsLicenseModel," & _
-'                "[Номер лицензии Windows OLP] as WindowsOLPSerial," & _
-'                "[Версия Windows] as WindowsVersion," & _
-'                "[Сетевое имя] as WSName," & _
-'                "[Серийный номер] as WSSerial " & _
-'                "from aida.dbo.larspc where [Сетевое имя] = '" & CurrentHostname & "';"
-'' тоже реализуем с небольшой динамикой
-
-SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
-SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
-Debug.Print SQLRequest
-    SQLData.Open SQLRequest, SQL, adOpenKeyset
-    GetSQLData = SQLData.Fields(AuditParameter).Value
-    SQL.Close
-    Exit Function
-    
-GetSqlData_error:
-enumSQLFields = enumSQLFields - 1
-End Function
+Private Sub Class_Initialize()
+Company = "[Юрлицо]"
+OfficeLicenseModel = "[Office License Model]"
+OfficeVersion = "[Версия Офис]"
+WindowsLicenseModel = "[Windows License Model]"
+WindowsOLPSerial = "[Номер лицензии Windows OLP]"
+WindowsVersion = "[Версия Windows]"
+WSName = "[Сетевое имя]"
+WSSerial = "[Серийный номер]"
+End Sub
