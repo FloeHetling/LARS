@@ -1,8 +1,8 @@
-frmWriteAuditData = 82, 297, 1360, 949, C, 171, 48, 938, 454, C
-modStartup = 58, 15, 1215, 724, 
+frmWriteAuditData = 26, 32, 1304, 684, C, 171, 48, 938, 454, C
+modStartup = 58, 15, 1215, 724, C
 modAutoComplete = 26, 26, 980, 569, C
 modRegistry = 4, 12, 922, 533, C
 modMAD = 15, 6, 868, 593, C
 AuditData = 216, 66, 1058, 590, C
-SQLAuditData = 60, 36, 1326, 515, C
+SQLAuditData = 60, 153, 1326, 632, C
 AliasLibrary = 125, 125, 596, 619, C

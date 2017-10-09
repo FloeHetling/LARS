@@ -36,6 +36,29 @@ Dim cItem As Integer
                 cbExists = False
 End Function
 
-Public Function SQLGetAuditData(ByVal AuditProp As String, ByVal auditdata As String)
+Public Function SQLExecute(ByVal SQLRequestString As String, SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
+On Error GoTo SQL_error
+Dim SQLResponse As Variant
+Dim SQL As New ADODB.Connection
+    Dim SQLData As New ADODB.Recordset
+    Dim SQLRequest As String, SQLAPRequest As String
+    
+    SQL.Open _
+        "Provider = SQLNCLI11.1;" & _
+        "Data Source=WS6666\SQLEXPRESS;" & _
+        "Initial Catalog=AIDA;" & _
+        "User ID=sa;" & _
+        "Password=happyness;"
+    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+    SQLData.Open SQLRequestString, SQL, adOpenKeyset
+        If SQLMode = laRX Then
+            SQLExecute = SQLData.Fields(ParameterToRead).Value
+        End If
+    SQL.Close
+    Exit Function
 
+SQL_error:
+Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+SQLExecute = Err.Number
 End Function
+

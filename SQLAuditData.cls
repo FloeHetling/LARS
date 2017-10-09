@@ -232,29 +232,29 @@ SQLRequest = "SELECT [Сетевое имя] AS WSName FROM aida.dbo.larspc WHERE [Сетевое
     End If
 End Function
 
-Public Function SQLExecute(Optional ByVal SQLRequestString As String, Optional SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
-On Error GoTo SQL_error
-Dim SQLResponse As Variant
-Dim SQL As New ADODB.Connection
-    Dim SQLData As New ADODB.Recordset
-    Dim SQLRequest As String, SQLAPRequest As String
-    
-    SQL.Open _
-        "Provider = SQLNCLI11.1;" & _
-        "Data Source=WS0006\SQLEXPRESS;" & _
-        "Initial Catalog=AIDA;" & _
-        "User ID=sa;" & _
-        "Password=happyness;"
-    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
-    SQLData.Open SQLRequestString, SQL, adOpenKeyset
-        If SQLMode = laRX Then
-            SQLExecute = SQLData.Fields(ParameterToRead).Value
-        End If
-    SQL.Close
-    Exit Function
-
-SQL_error:
-Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
-SQLExecute = Err.Number
-End Function
+'Public Function SQLExecute(ByVal SQLRequestString As String, SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
+'On Error GoTo SQL_error
+'Dim SQLResponse As Variant
+'Dim SQL As New ADODB.Connection
+'    Dim SQLData As New ADODB.Recordset
+'    Dim SQLRequest As String, SQLAPRequest As String
+'
+'    SQL.Open _
+'        "Provider = SQLNCLI11.1;" & _
+'        "Data Source=WS0006\SQLEXPRESS;" & _
+'        "Initial Catalog=AIDA;" & _
+'        "User ID=sa;" & _
+'        "Password=happyness;"
+'    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+'    SQLData.Open SQLRequestString, SQL, adOpenKeyset
+'        If SQLMode = laRX Then
+'            SQLExecute = SQLData.Fields(ParameterToRead).Value
+'        End If
+'    SQL.Close
+'    Exit Function
+'
+'SQL_error:
+'Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+'SQLExecute = Err.Number
+'End Function
 

@@ -27,6 +27,7 @@ Private mvarOfficeLicenseModel As String 'local copy
 Public Enum laWriteMode
     laWriteToRegistry
     laWriteToSQL
+    laWriteEverywhere
 End Enum
 
 Public Property Let OfficeLicenseModel(ByVal vData As String)
