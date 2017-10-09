@@ -279,8 +279,10 @@ Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность к
 Dim ctlInfobox As Control
 Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
+
 Private Function LoadAuditData()
 Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
+
 tResetColor.Enabled = True
 enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
@@ -477,3 +479,5 @@ Dim ibColor As Integer
     Next
 tResetColor.Enabled = False
 End Sub
+
+

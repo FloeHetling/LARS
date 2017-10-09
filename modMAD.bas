@@ -61,4 +61,3 @@ SQL_error:
 Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 SQLExecute = Err.Number
 End Function
-

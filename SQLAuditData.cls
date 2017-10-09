@@ -258,3 +258,17 @@ End Function
 'SQLExecute = Err.Number
 'End Function
 
+Private Sub Class_Initialize()
+Call CheckSQLAvailability
+End Sub
+
+Public Function CheckSQLAvailability() As Boolean
+Dim sqlCheckIfAvailable As Long
+sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
+    If sqlCheckIfAvailable = -2147467259 Then
+        frmWriteAuditData.chkSQL.Value = 0
+        MsgBox "Сервер SQL не доступен." & vbCrLf _
+            & " Работа проводится только с реестром!", vbExclamation & vbOKOnly, LARSver
+    End If
+End Function
+
