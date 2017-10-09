@@ -5,13 +5,13 @@ Begin VB.Form frmWriteAuditData
    ClientHeight    =   4440
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   7875
+   ClientWidth     =   7890
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   296
    ScaleMode       =   3  'Пиксель
-   ScaleWidth      =   525
+   ScaleWidth      =   526
    StartUpPosition =   2  'CenterScreen
    Begin VB.Timer tDelayedReadData 
       Interval        =   20
@@ -218,7 +218,6 @@ Begin VB.Form frmWriteAuditData
          Style           =   1  'Graphical
          TabIndex        =   27
          Top             =   240
-         Visible         =   0   'False
          Width           =   600
       End
       Begin VB.CommandButton cmdLaunchAIDA 
@@ -339,22 +338,30 @@ End If
     Next
     
     '' отлов ошибки с пустым ответом сервера
-    
+    '' и предложение внести в базу данные с форнмы
     If enumSQLFields = 0 Then
-        MsgBox _
-        "В базе нет никаких данных по " & HostName & "!" & vbCrLf & _
-        " - ПК назван правильно?" & vbCrLf & _
-        " " & vbCrLf & _
-        "Исправьте имя ПК или добавьте в БД информацию по нему" & vbCrLf & _
-        "и попробуйте еще раз!" & vbCrLf & _
-        " " & vbCrLf & _
-        "Вы можете продолжить работу с реестром ПК" _
-        , vbExclamation + vbOKOnly, LARSver
-        chkSQLCompare.Value = 0
+            If MsgBox("В БД не найдено никаких сведений о " & HostName & "!" & vbCrLf & _
+                        "Желаете добавить сведения с текущей формы как новую запись в БД?", _
+                        vbQuestion & vbYesNo, LARSver) = vbYes Then
+                        
+                        'проверка пустых полей
+                            Dim cbiCount As Integer, NullFieldWarning As Boolean
+                            For cbiCount = 0 To cbinfo().UBound
+                                If cbinfo(cbiCount).Text = "Нет данных" Or _
+                                cbinfo(cbiCount).Text = "" Then _
+                                NullFieldWarning = True Else _
+                                NullFieldWarning = False
+                            Next
+                        If NullFieldWarning = True Then
+                            If MsgBox("Одно или несколько полей на форме не заполнены. Продолжить?", _
+                            vbQuestion & vbYesNo, LARSver) = vbYes Then _
+                            Call SaveAuditData(laWriteToSQL)
+                        End If
+            End If
     End If
 End Function
 
-Private Function SaveAuditData()
+Private Function SaveAuditData(ByVal WriteMode As laWriteMode)
 Dim ctlIBVariable As String
 Dim ctlIBValue As String
 tResetColor.Enabled = True
@@ -373,16 +380,17 @@ tResetColor.Enabled = True
             ctlInfobox.BackColor = Lime
             ctlIBValue = ctlInfobox.Text
           '
-          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) ?­того здесь нахрен не надо
+          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) Этого здесь нахрен не надо
           '
-            CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
+            If WriteMode = laWriteToRegistry Then CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
+            If WriteMode = laWriteToSQL Then CallByName thisPCSQL, ctlIBVariable, VbLet, ctlIBValue
         End If
     Next
     
     'обработав все элементы с тегом infobox и заполнив все переменные класса AuditData
     'запускаем внутреннюю процедуру класса, записывающую данные в реестр Windows
-    
-thisPC.RegSave
+If WriteMode = laWriteToRegistry Then thisPC.RegSave
+If WriteMode = laWriteToSQL Then thisPCSQL.SQLSave (HostName)
 isDataChanged = False
 End Function
 
@@ -407,8 +415,12 @@ Private Sub cmdLoad_Click()
 Call LoadAuditData
 End Sub
 
+Private Sub cmdOptions_Click()
+Call SaveAuditData(laWriteToSQL)
+End Sub
+
 Private Sub cmdSubmit_Click()
-Call SaveAuditData
+Call SaveAuditData(laWriteToRegistry)
 End Sub
 
 Private Sub cmdLaunchAIDA_Click()
@@ -426,7 +438,7 @@ End If
 'If isSQLSyncCompleted = False Then
 '    if msgbox("Хотите актуализировать записи в SQL по этому ПК?")
 '
-''' ?­то вообще не приоритет...
+''' Это вообще не приоритет...
 End Sub
 
 Private Sub tDelayedReadData_Timer()

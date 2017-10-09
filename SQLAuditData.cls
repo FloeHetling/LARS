@@ -14,6 +14,8 @@ Attribute VB_Exposed = False
 Attribute VB_Description = "Data fetched from SQL Server"
 Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
+Option Explicit
+
 'local variable(s) to hold property value(s)
 Private mvarCompany As String 'local copy
 Private mvarWSName As String 'local copy
@@ -23,6 +25,11 @@ Private mvarWindowsLicenseModel As String 'local copy
 Private mvarWindowsOLPSerial As String 'local copy
 Private mvarOfficeVersion As String 'local copy
 Private mvarOfficeLicenseModel As String 'local copy
+Public Enum laSQLMode
+    laTX
+    laRX
+End Enum
+
 
 Public Property Let OfficeLicenseModel(ByVal vData As String)
 'used when assigning a value to the property, on the left side of an assignment.
@@ -36,9 +43,20 @@ Public Property Get OfficeLicenseModel() As String
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
-Public Sub SQLSave()
-MsgBox "TODO: ? еализовать механизм записи в SQL. Зачем?"
-MsgBox "Глупый вопрос! Потому что!"
+Public Sub SQLSave(ByVal CurrentHostname As String)
+'Метод для сохранения данных в SQL из класс-объекта
+Dim ibName As Variant
+Dim ibValue As String
+
+    'Переменных, хранящих аудит-данные столько же, сколько у нас
+    'информационных полей на форме. Отталкиваемся от кол-ва переменных
+    'в массиве InfoBoxes.
+    'Для каждой переменной из массива ДИНАМИЧЕСКИ запрашиваем с класса AuditData
+    '(здесь он обращается сам к себе) соответствующее значение.
+    For Each ibName In InfoBoxes
+        ibValue = CallByName(Me, ibName, VbGet)
+        Call SQLWrite(ibName, HostName, ibValue)
+    Next
 End Sub
 
 Public Sub SQLLoad(ByVal CurrentHostname As String)
@@ -200,3 +218,43 @@ Debug.Print SQLRequest
 GetSqlData_error:
 enumSQLFields = enumSQLFields - 1
 End Function
+
+Private Function SQLWrite(ByVal AuditParameter As String, ByVal CurrentHostname As String, ByVal AuditValue As String) As Boolean
+Dim SQLAPRequest As String, SQLRequest As String
+SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
+SQLRequest = "SELECT [Сетевое имя] AS WSName FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+    If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
+        SQLRequest = "INSERT INTO dbo.larspc ([Сетевое имя]) VALUES ('" & CurrentHostname & "');"
+        SQLExecute SQLRequest, laTX
+    Else
+        SQLRequest = "UPDATE aida.dbo.larspc SET " & SQLAPRequest & " = '" & AuditValue & "' WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+        SQLExecute SQLRequest, laTX
+    End If
+End Function
+
+Public Function SQLExecute(Optional ByVal SQLRequestString As String, Optional SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
+On Error GoTo SQL_error
+Dim SQLResponse As Variant
+Dim SQL As New ADODB.Connection
+    Dim SQLData As New ADODB.Recordset
+    Dim SQLRequest As String, SQLAPRequest As String
+    
+    SQL.Open _
+        "Provider = SQLNCLI11.1;" & _
+        "Data Source=WS0006\SQLEXPRESS;" & _
+        "Initial Catalog=AIDA;" & _
+        "User ID=sa;" & _
+        "Password=happyness;"
+    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+    SQLData.Open SQLRequestString, SQL, adOpenKeyset
+        If SQLMode = laRX Then
+            SQLExecute = SQLData.Fields(ParameterToRead).Value
+        End If
+    SQL.Close
+    Exit Function
+
+SQL_error:
+Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+SQLExecute = Err.Number
+End Function
+

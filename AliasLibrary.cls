@@ -13,6 +13,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
+Option Explicit
+
 'local variable(s) to hold property value(s)
 Private mvarCompany As String 'local copy
 Private mvarWSName As String 'local copy
@@ -22,6 +24,11 @@ Private mvarWindowsLicenseModel As String 'local copy
 Private mvarWindowsOLPSerial As String 'local copy
 Private mvarOfficeVersion As String 'local copy
 Private mvarOfficeLicenseModel As String 'local copy
+Public Enum laWriteMode
+    laWriteToRegistry
+    laWriteToSQL
+End Enum
+
 Public Property Let OfficeLicenseModel(ByVal vData As String)
 'used when assigning a value to the property, on the left side of an assignment.
 'Syntax: X.OfficeLicenseModel = 5
