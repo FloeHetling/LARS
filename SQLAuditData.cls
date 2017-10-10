@@ -263,12 +263,19 @@ Call CheckSQLAvailability
 End Sub
 
 Public Function CheckSQLAvailability() As Boolean
+Screen.MousePointer = 11
+frmwait.Show
+frmwait.Reason.Caption = "Проверка SQL"
 Dim sqlCheckIfAvailable As Long
 sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
     If sqlCheckIfAvailable = -2147467259 Then
         frmWriteAuditData.chkSQL.Value = 0
+        frmwait.Hide
         MsgBox "Сервер SQL не доступен." & vbCrLf _
             & " Работа проводится только с реестром!", vbExclamation & vbOKOnly, LARSver
+        frmWriteAuditData.chkSQL.Enabled = False
     End If
+frmwait.Hide
+Screen.MousePointer = 0
 End Function
 

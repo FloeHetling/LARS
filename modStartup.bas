@@ -13,9 +13,18 @@ Option Explicit
       
 'Глобальные константы
 ''Оформление
-    Public Const Lime = 12648384
-    Public Const Sand = 12648447
-    Public Const Red = 12632319
+    Public Enum laColorConstants
+        laLightGreen = 12648384
+        laSand = 12648447
+        laLightRed = 12632319
+        laDarkGreen = 32768
+        laDarkRed = 192
+        laDarkBlue = 12936533
+        laBlack = 0
+    End Enum
+    
+    
+    
 
 'Глобальные объекты
 ''Используем класс AuditData, обзываем его thisPC

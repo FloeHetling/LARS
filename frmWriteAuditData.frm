@@ -2,22 +2,57 @@ VERSION 5.00
 Begin VB.Form frmWriteAuditData 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Редактирование данных для аудита"
-   ClientHeight    =   4425
+   ClientHeight    =   4830
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   7890
+   ClientWidth     =   7950
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   295
+   ScaleHeight     =   322
    ScaleMode       =   3  'Пиксель
-   ScaleWidth      =   526
+   ScaleWidth      =   530
    StartUpPosition =   2  'CenterScreen
+   Begin VB.PictureBox container 
+      Height          =   375
+      Index           =   1
+      Left            =   1320
+      ScaleHeight     =   315
+      ScaleWidth      =   6555
+      TabIndex        =   28
+      Top             =   4440
+      Width           =   6615
+      Begin VB.Label stDescription 
+         Height          =   255
+         Left            =   45
+         TabIndex        =   29
+         Top             =   45
+         Width           =   6255
+      End
+   End
+   Begin VB.PictureBox container 
+      Height          =   375
+      Index           =   0
+      Left            =   0
+      ScaleHeight     =   315
+      ScaleWidth      =   1275
+      TabIndex        =   26
+      Top             =   4440
+      Width           =   1335
+      Begin VB.Label stTitle 
+         Caption         =   "Готов"
+         Height          =   255
+         Left            =   105
+         TabIndex        =   27
+         Top             =   45
+         Width           =   975
+      End
+   End
    Begin VB.Timer tDelayedWriteData 
       Enabled         =   0   'False
       Interval        =   600
-      Left            =   6720
-      Top             =   2760
+      Left            =   7440
+      Top             =   3840
    End
    Begin VB.CommandButton cmdSync 
       Caption         =   "Синхронизировать"
@@ -38,14 +73,14 @@ Begin VB.Form frmWriteAuditData
    End
    Begin VB.Timer tDelayedReadData 
       Interval        =   20
-      Left            =   6240
-      Top             =   2760
+      Left            =   7080
+      Top             =   3840
    End
    Begin VB.Timer tResetColor 
       Enabled         =   0   'False
       Interval        =   500
-      Left            =   5760
-      Top             =   2760
+      Left            =   6720
+      Top             =   3840
    End
    Begin VB.Frame frInfo 
       Caption         =   "Информация"
@@ -241,7 +276,6 @@ Begin VB.Form frmWriteAuditData
          Style           =   1  'Graphical
          TabIndex        =   23
          Top             =   240
-         Visible         =   0   'False
          Width           =   600
       End
       Begin VB.CommandButton cmdLaunchAIDA 
@@ -282,12 +316,13 @@ Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
 Private Function LoadAuditData()
 Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
-
 tResetColor.Enabled = True
 enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
+Status "Работаю", "Загружаю информацию из реестра", laDarkBlue
 thisPC.RegLoad
 If chkSQL.Value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
+    Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
     thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
 End If
     For Each ctlInfobox In Me.Controls                              'Теперь выполняем для каждого инфополя из сформированного в sub_main массива
@@ -306,7 +341,7 @@ End If
                 If cbExists(cbAuditValue, ctlInfobox) = False Then
                     With ctlInfobox
                      .AddItem (cbAuditValue)
-                     .BackColor = Sand
+                     .BackColor = laSand
                      .ListIndex = 0
                     End With
                 End If
@@ -321,7 +356,7 @@ End If
                         And Not cbAuditValueSQL = "sql_err_nodata" Then
                             With ctlInfobox
                                 .AddItem (cbAuditValueSQL)
-                                .BackColor = Red
+                                .BackColor = laLightRed
                                 .Tag = .Tag + ",noreset"
                                 .ListIndex = 0
                             End With
@@ -370,7 +405,7 @@ tResetColor.Enabled = True
             Dim InfoboxTag() As String
             InfoboxTag = Split(ctlInfobox.Tag, ",")
             ctlIBVariable = InfoboxTag(1)
-            ctlInfobox.BackColor = Lime
+            ctlInfobox.BackColor = laLightGreen
             ctlIBValue = ctlInfobox.Text
           '
           ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) Этого здесь нахрен не надо
@@ -400,7 +435,7 @@ isDataChanged = True
 End Sub
 
 Private Sub cbinfo_Click(Index As Integer)
-If cbinfo(Index).BackColor = Red Then
+If cbinfo(Index).BackColor = laLightRed Then
     With cbinfo(Index)
     .BackColor = vbWhite
     .Tag = Replace(.Tag, ",noreset", "")
@@ -433,13 +468,18 @@ Shell "cmd.exe", vbNormalFocus
 End Sub
 
 Private Sub cmdSync_Click()
-Call LoadAuditData
+Status "Занят", "Синхронизация запущена", laDarkGreen
+If isDataChanged = False Then Call LoadAuditData
 tDelayedWriteData.Enabled = True
 cmdSync.Enabled = False
     Dim cbInfoCount As Integer
         For cbInfoCount = 0 To cbinfo().UBound
             cbinfo(cbInfoCount).Enabled = False
         Next
+End Sub
+
+Private Sub Form_Terminate()
+End
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
@@ -450,11 +490,13 @@ End If
 '    if msgbox("Хотите актуализировать записи в SQL по этому ПК?")
 '
 ''' Это вообще не приоритет...
+End
 End Sub
 
 Private Sub tDelayedReadData_Timer()
 Call LoadAuditData
 tDelayedReadData.Enabled = False
+Status "Готов", "Загружены данные из реестра Windows", laBlack
 End Sub
 
 Private Sub tDelayedWriteData_Timer()
@@ -470,6 +512,7 @@ cmdSync.Enabled = True
         For cbInfoCount = 0 To cbinfo().UBound
             cbinfo(cbInfoCount).Enabled = True
         Next
+Status "Готов", "Синхронизация завершена", laBlack
 End Sub
 
 Private Sub tResetColor_Timer()
@@ -478,6 +521,21 @@ Dim ibColor As Integer
     If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
     Next
 tResetColor.Enabled = False
+Status "Готов", "", laBlack
 End Sub
+
+Public Function Status(Optional ByVal StatusText As String, _
+                        Optional ByVal StatusDescription As String, _
+                        Optional ByRef StatusColor As laColorConstants)
+With stTitle
+    .Caption = StatusText
+    .ForeColor = StatusColor
+End With
+
+With stDescription
+    .Caption = StatusDescription
+    .ForeColor = StatusColor
+End With
+End Function
 
 
