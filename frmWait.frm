@@ -113,6 +113,10 @@ Dim TickerIndex As Integer, KillTime As Integer
 Dim OddEven As Boolean
 
 Private Sub Animate_Timer()
+    If KillTime = 0 Then
+        Me.Height = 645
+        container.Height = 615
+    End If
 DoEvents
     If TickerIndex = 0 Then
         If OddEven = False Then OddEven = True Else OddEven = False
@@ -144,3 +148,22 @@ DoEvents
 Me.Height = 645
 container.Height = 615
 End Sub
+
+Private Sub Form_LostFocus()
+KillTime = 0
+Animate.Enabled = False
+Me.Height = 645
+container.Height = 615
+Unload Me
+End Sub
+
+Private Sub Form_Terminate()
+Animate.Enabled = False
+KillTime = 0
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+Animate.Enabled = False
+KillTime = 0
+End Sub
+

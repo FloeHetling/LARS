@@ -43,14 +43,8 @@ Dim SQL As New ADODB.Connection
     Dim SQLData As New ADODB.Recordset
     Dim SQLRequest As String, SQLAPRequest As String
     DoEvents
-    SQL.Open _
-        "Provider = SQLNCLI11.1;" & _
-        "Data Source=WS0006\SQLEXPRESS;" & _
-        "Initial Catalog=AIDA;" & _
-        "User ID=sa;" & _
-        "Connect Timeout=2;" & _
-        "Password=happyness;"
-    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+    SQL.Open SQLConnString
+    frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
     SQLData.Open SQLRequestString, SQL, adOpenKeyset
         If SQLMode = laRX Then
             SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -59,6 +53,6 @@ Dim SQL As New ADODB.Connection
     Exit Function
 
 SQL_error:
-Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 SQLExecute = Err.Number
 End Function

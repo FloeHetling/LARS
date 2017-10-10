@@ -37,9 +37,19 @@ Option Explicit
     Private Const MAX_COMPUTERNAME_LENGTH As Long = 31
     Private Declare Function GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
     
+'Глобальная строка подключения для SQL
+    Public SQLConnString As String
+
 Dim CLIArg As String
 
 Sub Main()
+SQLConnString = "Provider = SQLOLEDB.1;" & _
+        "Data Source=tcp:192.168.78.39,1433[oledb];" & _
+        "Persist Security Info=False;" & _
+        "Initial Catalog=AIDA;" & _
+        "User ID=sa;" & _
+        "Connect Timeout=2;" & _
+        "Password=happyness;"
 'записываем в глобальную переменную зазвание и версию ПО
 LARSver = App.ProductName & ", версия " & App.Major & "." & App.Minor & "." & App.Revision & " - " & App.CompanyName
 'проверяем, запущен ли другой экземпляр

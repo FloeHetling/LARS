@@ -2,17 +2,43 @@ VERSION 5.00
 Begin VB.Form frmWriteAuditData 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Редактирование данных для аудита"
-   ClientHeight    =   4830
+   ClientHeight    =   4845
    ClientLeft      =   45
    ClientTop       =   375
    ClientWidth     =   7950
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   322
+   ScaleHeight     =   323
    ScaleMode       =   3  'Пиксель
    ScaleWidth      =   530
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton Command1 
+      Caption         =   "Command1"
+      Height          =   495
+      Left            =   9240
+      TabIndex        =   32
+      Top             =   4320
+      Width           =   615
+   End
+   Begin VB.TextBox tConnString 
+      Height          =   1215
+      Left            =   0
+      MultiLine       =   -1  'True
+      ScrollBars      =   3  'Оба
+      TabIndex        =   31
+      Top             =   4920
+      Width           =   10815
+   End
+   Begin VB.TextBox tDeb 
+      Height          =   2535
+      Left            =   0
+      MultiLine       =   -1  'True
+      ScrollBars      =   3  'Оба
+      TabIndex        =   30
+      Top             =   6240
+      Width           =   10815
+   End
    Begin VB.PictureBox container 
       Height          =   375
       Index           =   1
@@ -309,7 +335,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
-
+'frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & <--> debug.print
 Dim ctlInfobox As Control
 Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
@@ -456,7 +482,7 @@ Private Sub cmdSubmit_Click()
 End Sub
 
 Private Sub chkSQL_Click()
-' Debug.Print SQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
+' frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & SQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
 End Sub
 
 Private Sub cmdLaunchAIDA_Click()
@@ -476,6 +502,22 @@ cmdSync.Enabled = False
         For cbInfoCount = 0 To cbinfo().UBound
             cbinfo(cbInfoCount).Enabled = False
         Next
+End Sub
+
+Private Sub Command1_Click()
+tDeb.Text = ""
+SQLConnString = tConnString.Text
+thisPCSQL.CheckSQLAvailability
+End Sub
+
+Private Sub Form_Load()
+'tConnString.Text = "Provider = SQLOLEDB.1;" & _
+'        "Data Source=WS0006\SQLEXPRESS;" & _
+'        "Persist Security Info=False;" & _
+'        "Initial Catalog=AIDA;" & _
+'        "User ID=sa;" & _
+'        "Connect Timeout=2;" & _
+'        "Password=happyness;"
 End Sub
 
 Private Sub Form_Terminate()

@@ -39,7 +39,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeLicenseModel
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -79,7 +79,7 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeVersion
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeVersion
     OfficeVersion = mvarOfficeVersion
 End Property
 
@@ -95,7 +95,7 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsOLPSerial
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
@@ -111,7 +111,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsLicenseModel
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -127,7 +127,7 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsVersion
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsVersion
     WindowsVersion = mvarWindowsVersion
 End Property
 
@@ -143,7 +143,7 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSSerial
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
@@ -159,8 +159,8 @@ End Property
 
 Public Property Get WSName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSName
-    WSName = mvarWSName
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSName
+    WSName = HostName
 End Property
 
 
@@ -175,7 +175,7 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.Company
+'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.Company
     Company = mvarCompany
 End Property
 
@@ -187,12 +187,7 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
     Dim SQLData As New ADODB.Recordset 'Recordset Object
     Dim SQLRequest As String, SQLAPRequest As String ' String variable to store sql command
     
-    SQL.Open _
-        "Provider = SQLNCLI11.1;" & _
-        "Data Source=WS0006\SQLEXPRESS;" & _
-        "Initial Catalog=AIDA;" & _
-        "User ID=sa;" & _
-        "Password=happyness;"
+    SQL.Open SQLConnString
         
 '' Вот эту ебаную индусятину
 '    SQLRequest = "select " & _
@@ -209,7 +204,7 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
 
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
 SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
-Debug.Print SQLRequest
+frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & SQLRequest
     SQLData.Open SQLRequest, SQL, adOpenKeyset
     GetSQLData = SQLData.Fields(AuditParameter).Value
     SQL.Close
@@ -245,7 +240,7 @@ End Function
 '        "Initial Catalog=AIDA;" & _
 '        "User ID=sa;" & _
 '        "Password=happyness;"
-'    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+'    frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
 '    SQLData.Open SQLRequestString, SQL, adOpenKeyset
 '        If SQLMode = laRX Then
 '            SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -254,13 +249,10 @@ End Function
 '    Exit Function
 '
 'SQL_error:
-'Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+'frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 'SQLExecute = Err.Number
 'End Function
 
-Private Sub Class_Initialize()
-Call CheckSQLAvailability
-End Sub
 
 Public Function CheckSQLAvailability() As Boolean
 Screen.MousePointer = 11
