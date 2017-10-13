@@ -2,62 +2,152 @@ VERSION 5.00
 Begin VB.Form frmWriteAuditData 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Редактирование данных для аудита"
-   ClientHeight    =   4380
+   ClientHeight    =   4845
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   7365
+   ClientWidth     =   7950
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   4380
-   ScaleWidth      =   7365
+   ScaleHeight     =   323
+   ScaleMode       =   3  'Пиксель
+   ScaleWidth      =   530
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton Command1 
+      Caption         =   "Command1"
+      Height          =   495
+      Left            =   9240
+      TabIndex        =   32
+      Top             =   4320
+      Width           =   615
+   End
+   Begin VB.TextBox tConnString 
+      Height          =   1215
+      Left            =   0
+      MultiLine       =   -1  'True
+      ScrollBars      =   3  'Оба
+      TabIndex        =   31
+      Top             =   4920
+      Width           =   10815
+   End
+   Begin VB.TextBox tDeb 
+      Height          =   2535
+      Left            =   0
+      MultiLine       =   -1  'True
+      ScrollBars      =   3  'Оба
+      TabIndex        =   30
+      Top             =   6240
+      Width           =   10815
+   End
+   Begin VB.PictureBox container 
+      Height          =   375
+      Index           =   1
+      Left            =   1320
+      ScaleHeight     =   315
+      ScaleWidth      =   6555
+      TabIndex        =   28
+      Top             =   4440
+      Width           =   6615
+      Begin VB.Label stDescription 
+         Height          =   255
+         Left            =   45
+         TabIndex        =   29
+         Top             =   45
+         Width           =   6255
+      End
+   End
+   Begin VB.PictureBox container 
+      Height          =   375
+      Index           =   0
+      Left            =   0
+      ScaleHeight     =   315
+      ScaleWidth      =   1275
+      TabIndex        =   26
+      Top             =   4440
+      Width           =   1335
+      Begin VB.Label stTitle 
+         Caption         =   "Готов"
+         Height          =   255
+         Left            =   105
+         TabIndex        =   27
+         Top             =   45
+         Width           =   975
+      End
+   End
+   Begin VB.Timer tDelayedWriteData 
+      Enabled         =   0   'False
+      Interval        =   600
+      Left            =   7440
+      Top             =   3840
+   End
+   Begin VB.CommandButton cmdSync 
+      Caption         =   "Синхронизировать"
+      Default         =   -1  'True
+      Height          =   375
+      Left            =   5760
+      TabIndex        =   25
+      Top             =   1080
+      Width           =   2055
+   End
+   Begin VB.CheckBox chkSQL 
+      Caption         =   "Использовать SQL"
+      Height          =   375
+      Left            =   5760
+      TabIndex        =   24
+      Top             =   1560
+      Width           =   2055
+   End
    Begin VB.Timer tDelayedReadData 
       Interval        =   20
-      Left            =   6240
-      Top             =   1080
+      Left            =   7080
+      Top             =   3840
    End
    Begin VB.Timer tResetColor 
       Enabled         =   0   'False
-      Interval        =   1000
-      Left            =   5760
-      Top             =   1080
+      Interval        =   500
+      Left            =   6720
+      Top             =   3840
    End
    Begin VB.Frame frInfo 
       Caption         =   "Информация"
       Height          =   4335
       Left            =   120
-      TabIndex        =   13
+      TabIndex        =   11
       Top             =   0
       Width           =   5535
       Begin VB.Frame frCommon 
          Caption         =   "Общая"
          Height          =   1455
          Left            =   120
-         TabIndex        =   22
+         TabIndex        =   19
          Top             =   240
          Width           =   5295
-         Begin VB.ComboBox cbWSSerial 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   2
+            ItemData        =   "frmWriteAuditData.frx":0000
             Left            =   1800
+            List            =   "frmWriteAuditData.frx":0002
             TabIndex        =   3
             Tag             =   "infobox,WSSerial"
             Top             =   960
             Width           =   3375
          End
-         Begin VB.ComboBox cbWSName 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   1
             Left            =   1800
             TabIndex        =   2
             Tag             =   "infobox,WSName"
             Top             =   600
             Width           =   3375
          End
-         Begin VB.ComboBox cbCompany 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
-            ItemData        =   "frmWriteAuditData.frx":0000
+            Index           =   0
+            ItemData        =   "frmWriteAuditData.frx":0004
             Left            =   1800
-            List            =   "frmWriteAuditData.frx":0002
+            List            =   "frmWriteAuditData.frx":0006
             TabIndex        =   1
             Tag             =   "infobox,Company"
             Top             =   240
@@ -68,7 +158,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   2
             Left            =   120
-            TabIndex        =   25
+            TabIndex        =   22
             Top             =   960
             Width           =   1575
          End
@@ -77,7 +167,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   1
             Left            =   120
-            TabIndex        =   24
+            TabIndex        =   21
             Top             =   600
             Width           =   1575
          End
@@ -86,7 +176,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   0
             Left            =   120
-            TabIndex        =   23
+            TabIndex        =   20
             Top             =   240
             Width           =   1575
          End
@@ -95,20 +185,22 @@ Begin VB.Form frmWriteAuditData
          Caption         =   "Office"
          Height          =   1095
          Left            =   120
-         TabIndex        =   19
+         TabIndex        =   16
          Top             =   3120
          Width           =   5295
-         Begin VB.ComboBox cbOfficeLicenseModel 
+         Begin VB.ComboBox cbinfo 
             BackColor       =   &H00FFFFFF&
             Height          =   315
+            Index           =   7
             Left            =   1800
             TabIndex        =   8
             Tag             =   "infobox,OfficeLicenseModel"
             Top             =   600
             Width           =   3375
          End
-         Begin VB.ComboBox cbOfficeVersion 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   6
             Left            =   1800
             TabIndex        =   7
             Tag             =   "infobox,OfficeVersion"
@@ -120,7 +212,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   7
             Left            =   120
-            TabIndex        =   21
+            TabIndex        =   18
             Top             =   600
             Width           =   1575
          End
@@ -129,7 +221,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   6
             Left            =   120
-            TabIndex        =   20
+            TabIndex        =   17
             Top             =   240
             Width           =   1575
          End
@@ -138,27 +230,30 @@ Begin VB.Form frmWriteAuditData
          Caption         =   "Windows"
          Height          =   1455
          Left            =   120
-         TabIndex        =   15
+         TabIndex        =   12
          Top             =   1680
          Width           =   5295
-         Begin VB.ComboBox cbWindowsOLPSerial 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   5
             Left            =   1800
             TabIndex        =   6
             Tag             =   "infobox,WindowsOLPSerial"
             Top             =   960
             Width           =   3375
          End
-         Begin VB.ComboBox cbWindowsLicenseModel 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   4
             Left            =   1800
             TabIndex        =   5
             Tag             =   "infobox,WindowsLicenseModel"
             Top             =   600
             Width           =   3375
          End
-         Begin VB.ComboBox cbWindowsVersion 
+         Begin VB.ComboBox cbinfo 
             Height          =   315
+            Index           =   3
             Left            =   1800
             TabIndex        =   4
             Tag             =   "infobox,WindowsVersion"
@@ -170,7 +265,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   5
             Left            =   120
-            TabIndex        =   18
+            TabIndex        =   15
             Top             =   960
             Width           =   1575
          End
@@ -179,7 +274,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   4
             Left            =   120
-            TabIndex        =   17
+            TabIndex        =   14
             Top             =   600
             Width           =   1575
          End
@@ -188,25 +283,33 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   3
             Left            =   120
-            TabIndex        =   16
+            TabIndex        =   13
             Top             =   240
             Width           =   1575
          End
       End
    End
-   Begin VB.Frame frLaunch 
-      Caption         =   "Запустить"
+   Begin VB.Frame frMisc 
+      Caption         =   "Прочее"
       Height          =   975
       Left            =   5760
       TabIndex        =   0
       Top             =   0
-      Width           =   1575
+      Width           =   2055
+      Begin VB.CommandButton cmdOptions 
+         Height          =   600
+         Left            =   120
+         Style           =   1  'Graphical
+         TabIndex        =   23
+         Top             =   240
+         Width           =   600
+      End
       Begin VB.CommandButton cmdLaunchAIDA 
          Height          =   600
-         Left            =   840
-         Picture         =   "frmWriteAuditData.frx":0004
+         Left            =   1320
+         Picture         =   "frmWriteAuditData.frx":0008
          Style           =   1  'Graphical
-         TabIndex        =   12
+         TabIndex        =   10
          TabStop         =   0   'False
          ToolTipText     =   "Запустить AIDA64 из сетевого хранилища"
          Top             =   240
@@ -215,39 +318,14 @@ Begin VB.Form frmWriteAuditData
       Begin VB.CommandButton cmdLaunchCLI 
          CausesValidation=   0   'False
          Height          =   600
-         Left            =   120
-         Picture         =   "frmWriteAuditData.frx":1046
+         Left            =   720
+         Picture         =   "frmWriteAuditData.frx":104A
          Style           =   1  'Graphical
-         TabIndex        =   11
+         TabIndex        =   9
          TabStop         =   0   'False
          ToolTipText     =   "Запустить коммандную строку локального ПК"
          Top             =   240
          Width           =   600
-      End
-   End
-   Begin VB.Frame frRegistry 
-      Caption         =   "Реестр"
-      Height          =   1455
-      Left            =   5760
-      TabIndex        =   14
-      Top             =   2880
-      Width           =   1575
-      Begin VB.CommandButton cmdSubmit 
-         Caption         =   "За&писать"
-         Default         =   -1  'True
-         Height          =   495
-         Left            =   120
-         TabIndex        =   9
-         Top             =   840
-         Width           =   1335
-      End
-      Begin VB.CommandButton cmdLoad 
-         Caption         =   "&Прочитать"
-         Height          =   495
-         Left            =   120
-         TabIndex        =   10
-         Top             =   240
-         Width           =   1335
       End
    End
 End
@@ -257,94 +335,255 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
-
+'Debug.Print <--> debug.print
 Dim ctlInfobox As Control
+Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
+
 
 Private Function LoadAuditData()
-Dim ctlIBValue As String
+Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
 tResetColor.Enabled = True
+enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
+'Заполняем классы
+Status "Работаю", "Загружаю информацию из реестра", laDarkBlue
 thisPC.RegLoad
-    For Each ctlInfobox In Me.Controls
-        If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
-            ctlIBValue = Replace(ctlInfobox.Tag, "infobox,", "")
-            ctlInfobox.BackColor = Sand
-            ctlInfobox.Text = CallByName(thisPC, ctlIBValue, VbGet)
+If chkSQL.value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
+    Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
+    thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
+End If
+    For Each ctlInfobox In Me.Controls                              'Теперь выполняем для каждого инфополя из сформированного в sub_main массива
+        If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then            'если в списке тегов есть тег инфобокса
+            Dim InfoboxTag() As String
+            InfoboxTag = Split(ctlInfobox.Tag, ",")
+            ctlIBValue = InfoboxTag(1)                              'вычленяем из тега имя параметра
+            cbAuditValue = CallByName(thisPC, ctlIBValue, VbGet)    'и вызовом класса AuditData получаем значение в этот параметр
+                
+                ' "infobox,"
+                '
+                ' защита от дубликатов в списке
+                ' процедура модуля MAD cbExists проверяет, есть ли этот элемент в комбобоксе
+                ' если есть - не добавляет
+                '
+                If cbExists(cbAuditValue, ctlInfobox) = False Then
+                    With ctlInfobox
+                     .AddItem (cbAuditValue)
+                     .BackColor = laSand
+                     .ListIndex = 0
+                    End With
+                End If
+                '
+                'Отдельным блоком проверяем на соответствие параметр по SQL базе
+                'Если не совпадается с cbAuditValue и не содержится в инфобоксе - добавляем в инфобокс и красим его красным
+                '
+                If chkSQL.value = 1 Then 'делаем это только если стоит флажок "Сравнить с SQL"
+                    cbAuditValueSQL = CallByName(thisPCSQL, ctlIBValue, VbGet)
+                    If (cbAuditValueSQL <> cbAuditValue) _
+                        And (cbExists(cbAuditValueSQL, ctlInfobox) = False) _
+                        And Not cbAuditValueSQL = "sql_err_nodata" Then
+                            With ctlInfobox
+                                .AddItem (cbAuditValueSQL)
+                                .BackColor = laLightRed
+                                .Tag = .Tag + ",noreset"
+                                .ListIndex = 0
+                            End With
+                    End If
+                End If
         End If
     Next
+    
+    '' отлов ошибки с пустым ответом сервера
+    '' и предложение внести в базу данные с форнмы
+    If enumSQLFields = 0 Then
+            If MsgBox("В БД не найдено никаких сведений о " & HostName & "!" & vbCrLf & _
+                        "Желаете добавить сведения с текущей формы как новую запись в БД?", _
+                        vbQuestion & vbYesNo, LARSver) = vbYes Then
+                        
+                        'проверка пустых полей
+                            Dim cbiCount As Integer, NullFieldWarning As Boolean
+                            For cbiCount = 0 To cbinfo().UBound
+                                If cbinfo(cbiCount).Text = "Нет данных" Or _
+                                cbinfo(cbiCount).Text = "" Then _
+                                NullFieldWarning = True Else _
+                                NullFieldWarning = False
+                            Next
+                        If NullFieldWarning = True Then
+                            If MsgBox("Одно или несколько полей на форме не заполнены. Продолжить?", _
+                            vbQuestion & vbYesNo, LARSver) = vbYes Then _
+                            Call SaveAuditData(laWriteToSQL)
+                        Else
+                            Call SaveAuditData(laWriteToSQL)
+                        End If
+            End If
+    End If
 End Function
 
-Private Function SaveAuditData()
+Private Function SaveAuditData(ByVal WriteMode As laWriteMode)
 Dim ctlIBVariable As String
 Dim ctlIBValue As String
 tResetColor.Enabled = True
     For Each ctlInfobox In Me.Controls
-    
+        '
         'для всех элементов формы с тегом infobox
         'мы конвертим тег в свойство класса AuditData
         'затем, вызываем класс по имени экземпляра
         'и помещаем в его переменные соответствующую инфу из
         'инфобокса, который в данный момент участвует в цикле
-        
+        '
         If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then
-            ctlIBVariable = Replace(ctlInfobox.Tag, "infobox,", "")
-            ctlInfobox.BackColor = Lime
+            Dim InfoboxTag() As String
+            InfoboxTag = Split(ctlInfobox.Tag, ",")
+            ctlIBVariable = InfoboxTag(1)
+            ctlInfobox.BackColor = laLightGreen
             ctlIBValue = ctlInfobox.Text
-            CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
+          '
+          ' ctlIBValue = ctlInfobox.List(ctlInfobox.ListIndex) Этого здесь нахрен не надо
+          '
+            If WriteMode = laWriteToRegistry Then CallByName thisPC, ctlIBVariable, VbLet, ctlIBValue
+            If WriteMode = laWriteToSQL Then CallByName thisPCSQL, ctlIBVariable, VbLet, ctlIBValue
         End If
     Next
     
     'обработав все элементы с тегом infobox и заполнив все переменные класса AuditData
-    'запускаем внутреннюю процедуру класса, записывающую данные в реестр Windows
-    
-thisPC.RegSave
+    'запускаем внутреннюю процедуру класса, записывающую данные в реестр Windo
+        Select Case WriteMode
+            Case laWriteEverywhere
+                thisPC.RegSave
+                thisPCSQL.SQLSave (HostName)
+            Case laWriteToRegistry
+                thisPC.RegSave
+            Case laWriteToSQL
+                thisPCSQL.SQLSave (HostName)
+        End Select
+
+isDataChanged = False
 End Function
 
+Private Sub cbinfo_Change(index As Integer)
+isDataChanged = True
+End Sub
+
+Private Sub cbinfo_Click(index As Integer)
+If cbinfo(index).BackColor = laLightRed Then
+    With cbinfo(index)
+    .BackColor = vbWhite
+    .Tag = Replace(.Tag, ",noreset", "")
+    End With
+End If
+End Sub
+
+Private Sub cbinfo_KeyPress(index As Integer, KeyAscii As Integer)
+KeyAscii = AutoMatchCBBox(cbinfo(index), KeyAscii)
+End Sub
+
 Private Sub cmdLoad_Click()
-Call LoadAuditData
+
 End Sub
 
 Private Sub cmdSubmit_Click()
-Call SaveAuditData
+    
+End Sub
+
+Private Sub chkSQL_Click()
+' Debug.Print SQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
 End Sub
 
 Private Sub cmdLaunchAIDA_Click()
-Shell "\\zdc5\work\Administrator\AIDA\aida64.exe", vbNormalFocus
+shell "\\zdc5\work\Administrator\AIDA\aida64.exe", vbNormalFocus
 End Sub
 
 Private Sub cmdLaunchCLI_Click()
-Shell "cmd.exe", vbNormalFocus
+shell "cmd.exe", vbNormalFocus
+End Sub
+
+Private Sub cmdOptions_Click()
+frmWMIQL.Show
+End Sub
+
+Private Sub cmdSync_Click()
+Status "Занят", "Синхронизация запущена", laDarkGreen
+If isDataChanged = False Then Call LoadAuditData
+tDelayedWriteData.Enabled = True
+cmdSync.Enabled = False
+    Dim cbInfoCount As Integer
+        For cbInfoCount = 0 To cbinfo().UBound
+            cbinfo(cbInfoCount).Enabled = False
+        Next
+End Sub
+
+Private Sub Command1_Click()
+tDeb.Text = ""
+SQLConnString = tConnString.Text
+thisPCSQL.CheckSQLAvailability
+End Sub
+
+Private Sub Form_Load()
+'tConnString.Text = "Provider = SQLOLEDB.1;" & _
+'        "Data Source=WS0006\SQLEXPRESS;" & _
+'        "Persist Security Info=False;" & _
+'        "Initial Catalog=AIDA;" & _
+'        "User ID=sa;" & _
+'        "Connect Timeout=2;" & _
+'        "Password=happyness;"
+End Sub
+
+Private Sub Form_Terminate()
+End
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+If isDataChanged = True Then
+    If MsgBox("Есть несохраненные изменения реестра" & vbCrLf & "Вы точно хотите выйти?", vbQuestion & vbYesNo, LARSver) = vbNo Then Cancel = 1
+End If
+'If isSQLSyncCompleted = False Then
+'    if msgbox("Хотите актуализировать записи в SQL по этому ПК?")
+'
+''' Это вообще не приоритет...
+End
 End Sub
 
 Private Sub tDelayedReadData_Timer()
 Call LoadAuditData
 tDelayedReadData.Enabled = False
+Status "Готов", "Загружены данные из реестра Windows", laBlack
 End Sub
 
-''''''''''''''''''''''''''''''''''''
-' заготовка для автокомплита
-
-'Option Explicit
-'Private Sub cb1_KeyPress(KeyAscii As Integer)
-'   KeyAscii = AutoMatchCBBox(cb1, KeyAscii)
-'End Sub
-'
-'Private Sub Form_Initialize()
-'    Dim count As Integer, index  As Integer, aDate As Date
-'    Randomize
-'    count = Int((25 - 5 + 1) * Rnd) + 5
-'    aDate = Date
-'    Do While count > 0
-'        Randomize
-'        cb1.AddItem Format(aDate + Int(365 * Rnd), "mmm dd, yyyy")
-'        count = count - 1
-'    Loop
-'    cb1.ListIndex = 0
-'End Sub
-''''''''''''''''''''''''''''''''''''
+Private Sub tDelayedWriteData_Timer()
+Select Case chkSQL.value
+        Case 0
+            Call SaveAuditData(laWriteToRegistry)
+        Case 1
+            Call SaveAuditData(laWriteToSQL)
+End Select
+tDelayedWriteData.Enabled = False
+cmdSync.Enabled = True
+    Dim cbInfoCount As Integer
+        For cbInfoCount = 0 To cbinfo().UBound
+            cbinfo(cbInfoCount).Enabled = True
+        Next
+Status "Готов", "Синхронизация завершена", laBlack
+End Sub
 
 Private Sub tResetColor_Timer()
+Dim ibColor As Integer
     For Each ctlInfobox In Me.Controls
-    If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then ctlInfobox.BackColor = vbWhite
+    If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
     Next
 tResetColor.Enabled = False
+Status "Готов", "Считан ключ активации: " & GetWindowsKey, laBlack
 End Sub
+
+Public Function Status(Optional ByVal StatusText As String, _
+                        Optional ByVal StatusDescription As String, _
+                        Optional ByRef StatusColor As laColorConstants)
+With stTitle
+    .Caption = StatusText
+    .ForeColor = StatusColor
+End With
+
+With stDescription
+    .Caption = StatusDescription
+    .ForeColor = StatusColor
+End With
+End Function
+
+

@@ -21,13 +21,30 @@ Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
 'Локальные переменные для временного хранения данных модуля
 Private mvarCompany As String
-Private mvarWSName As String
+Private mvarWsName As String
 Private mvarWSSerial As String
 Private mvarWindowsVersion As String
 Private mvarWindowsLicenseModel As String
 Private mvarWindowsOLPSerial As String
 Private mvarOfficeVersion As String
 Private mvarOfficeLicenseModel As String
+'local variable(s) to hold property value(s)
+
+Public Property Let OfficeLicenseModel(ByVal vData As String)
+'used when assigning a value to the property, on the left side of an assignment.
+'Syntax: X.OfficeLicenseModel = 5
+    mvarOfficeLicenseModel = vData
+End Property
+
+
+Public Property Get OfficeLicenseModel() As String
+'used when retrieving value of a property, on the right side of an assignment.
+'Syntax: Debug.Print X.OfficeLicenseModel
+    OfficeLicenseModel = mvarOfficeLicenseModel
+End Property
+
+
+
 
 Public Sub RegSave()
 'Метод для сохранения данных в реестр из класс-объекта
@@ -58,18 +75,7 @@ Dim ibValue As String
     Next
 End Sub
 
-Public Property Let OfficeLicenseModel(ByVal vData As Variant)
-Attribute OfficeLicenseModel.VB_Description = "Модель лицензирования Microsoft Office"
-'used when assigning a value to the property, on the left side of an assignment.
-'Syntax: X.OfficeLicenseModel = 5
-    mvarOfficeLicenseModel = vData
-End Property
 
-Public Property Get OfficeLicenseModel() As Variant
-'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeLicenseModel
-    OfficeLicenseModel = mvarOfficeLicenseModel
-End Property
 
 Public Property Let OfficeVersion(ByVal vData As String)
 Attribute OfficeVersion.VB_Description = "Версия и редакция Microsoft Office"
@@ -82,7 +88,7 @@ End Property
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
 'Syntax: Debug.Print X.OfficeVersion
-    OfficeVersion = mvarOfficeVersion
+    OfficeVersion = GetOfficeVersion
 End Property
 
 
@@ -130,7 +136,7 @@ End Property
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
 'Syntax: Debug.Print X.WindowsVersion
-    WindowsVersion = mvarWindowsVersion
+    WindowsVersion = GetWindowsVersion
 End Property
 
 
@@ -151,18 +157,18 @@ End Property
 
 
 
-Public Property Let WSName(ByVal vData As String)
-Attribute WSName.VB_Description = "Сетевое имя ПК"
+Public Property Let WsName(ByVal vData As String)
+Attribute WsName.VB_Description = "Сетевое имя ПК"
 'used when assigning a value to the property, on the left side of an assignment.
 'Syntax: X.WSName = 5
-    mvarWSName = vData
+    mvarWsName = HostName
 End Property
 
 
-Public Property Get WSName() As String
+Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
 'Syntax: Debug.Print X.WSName
-    WSName = mvarWSName
+    WsName = HostName
 End Property
 
 
@@ -180,5 +186,3 @@ Public Property Get Company() As String
 'Syntax: Debug.Print X.Company
     Company = mvarCompany
 End Property
-
-
