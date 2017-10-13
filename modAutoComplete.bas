@@ -67,7 +67,7 @@ Public Function AutoMatchCBBox(ByRef cbBox As ComboBox, ByVal KeyAscii As Intege
     Exit Function
     
 ErrHandle:
-    frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & "Failed: AutoCompleteComboBox due to : " & Err.Description
+    Debug.Print "Failed: AutoCompleteComboBox due to : " & Err.Description
     Debug.Assert False
     AutoMatchCBBox = KeyAscii
     On Error GoTo 0

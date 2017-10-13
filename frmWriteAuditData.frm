@@ -335,7 +335,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
-'frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & <--> debug.print
+'Debug.Print <--> debug.print
 Dim ctlInfobox As Control
 Dim isDataChanged As Boolean, isSQLSyncCompleted As Boolean
 
@@ -347,7 +347,7 @@ enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
 Status "Работаю", "Загружаю информацию из реестра", laDarkBlue
 thisPC.RegLoad
-If chkSQL.Value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
+If chkSQL.value = 1 Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
     Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
     thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
 End If
@@ -375,7 +375,7 @@ End If
                 'Отдельным блоком проверяем на соответствие параметр по SQL базе
                 'Если не совпадается с cbAuditValue и не содержится в инфобоксе - добавляем в инфобокс и красим его красным
                 '
-                If chkSQL.Value = 1 Then 'делаем это только если стоит флажок "Сравнить с SQL"
+                If chkSQL.value = 1 Then 'делаем это только если стоит флажок "Сравнить с SQL"
                     cbAuditValueSQL = CallByName(thisPCSQL, ctlIBValue, VbGet)
                     If (cbAuditValueSQL <> cbAuditValue) _
                         And (cbExists(cbAuditValueSQL, ctlInfobox) = False) _
@@ -409,6 +409,8 @@ End If
                         If NullFieldWarning = True Then
                             If MsgBox("Одно или несколько полей на форме не заполнены. Продолжить?", _
                             vbQuestion & vbYesNo, LARSver) = vbYes Then _
+                            Call SaveAuditData(laWriteToSQL)
+                        Else
                             Call SaveAuditData(laWriteToSQL)
                         End If
             End If
@@ -456,21 +458,21 @@ tResetColor.Enabled = True
 isDataChanged = False
 End Function
 
-Private Sub cbinfo_Change(Index As Integer)
+Private Sub cbinfo_Change(index As Integer)
 isDataChanged = True
 End Sub
 
-Private Sub cbinfo_Click(Index As Integer)
-If cbinfo(Index).BackColor = laLightRed Then
-    With cbinfo(Index)
+Private Sub cbinfo_Click(index As Integer)
+If cbinfo(index).BackColor = laLightRed Then
+    With cbinfo(index)
     .BackColor = vbWhite
     .Tag = Replace(.Tag, ",noreset", "")
     End With
 End If
 End Sub
 
-Private Sub cbinfo_KeyPress(Index As Integer, KeyAscii As Integer)
-KeyAscii = AutoMatchCBBox(cbinfo(Index), KeyAscii)
+Private Sub cbinfo_KeyPress(index As Integer, KeyAscii As Integer)
+KeyAscii = AutoMatchCBBox(cbinfo(index), KeyAscii)
 End Sub
 
 Private Sub cmdLoad_Click()
@@ -482,15 +484,19 @@ Private Sub cmdSubmit_Click()
 End Sub
 
 Private Sub chkSQL_Click()
-' frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & SQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
+' Debug.Print SQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
 End Sub
 
 Private Sub cmdLaunchAIDA_Click()
-Shell "\\zdc5\work\Administrator\AIDA\aida64.exe", vbNormalFocus
+shell "\\zdc5\work\Administrator\AIDA\aida64.exe", vbNormalFocus
 End Sub
 
 Private Sub cmdLaunchCLI_Click()
-Shell "cmd.exe", vbNormalFocus
+shell "cmd.exe", vbNormalFocus
+End Sub
+
+Private Sub cmdOptions_Click()
+frmWMIQL.Show
 End Sub
 
 Private Sub cmdSync_Click()
@@ -542,7 +548,7 @@ Status "Готов", "Загружены данные из реестра Windows", laBlack
 End Sub
 
 Private Sub tDelayedWriteData_Timer()
-Select Case chkSQL.Value
+Select Case chkSQL.value
         Case 0
             Call SaveAuditData(laWriteToRegistry)
         Case 1
@@ -563,7 +569,7 @@ Dim ibColor As Integer
     If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
     Next
 tResetColor.Enabled = False
-Status "Готов", "", laBlack
+Status "Готов", "Считан ключ активации: " & GetWindowsKey, laBlack
 End Sub
 
 Public Function Status(Optional ByVal StatusText As String, _

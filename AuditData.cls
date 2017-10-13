@@ -21,7 +21,7 @@ Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
 'Локальные переменные для временного хранения данных модуля
 Private mvarCompany As String
-Private mvarWSName As String
+Private mvarWsName As String
 Private mvarWSSerial As String
 Private mvarWindowsVersion As String
 Private mvarWindowsLicenseModel As String
@@ -39,7 +39,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeLicenseModel
+'Syntax: Debug.Print X.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -87,8 +87,8 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeVersion
-    OfficeVersion = mvarOfficeVersion
+'Syntax: Debug.Print X.OfficeVersion
+    OfficeVersion = GetOfficeVersion
 End Property
 
 
@@ -103,7 +103,7 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsOLPSerial
+'Syntax: Debug.Print X.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
@@ -119,7 +119,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsLicenseModel
+'Syntax: Debug.Print X.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -135,8 +135,8 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsVersion
-    WindowsVersion = mvarWindowsVersion
+'Syntax: Debug.Print X.WindowsVersion
+    WindowsVersion = GetWindowsVersion
 End Property
 
 
@@ -151,24 +151,24 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSSerial
+'Syntax: Debug.Print X.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
 
 
-Public Property Let WSName(ByVal vData As String)
-Attribute WSName.VB_Description = "Сетевое имя ПК"
+Public Property Let WsName(ByVal vData As String)
+Attribute WsName.VB_Description = "Сетевое имя ПК"
 'used when assigning a value to the property, on the left side of an assignment.
 'Syntax: X.WSName = 5
-    mvarWSName = HostName
+    mvarWsName = HostName
 End Property
 
 
-Public Property Get WSName() As String
+Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSName
-    WSName = mvarWSName
+'Syntax: Debug.Print X.WSName
+    WsName = HostName
 End Property
 
 
@@ -183,6 +183,6 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.Company
+'Syntax: Debug.Print X.Company
     Company = mvarCompany
 End Property

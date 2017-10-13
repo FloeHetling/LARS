@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin VB.Form frmWait 
    BorderStyle     =   0  'Нет
-   Caption         =   "Form1"
+   Caption         =   "ЛАРС: Выполняется длительная процедура"
    ClientHeight    =   645
    ClientLeft      =   0
    ClientTop       =   0
@@ -11,7 +11,6 @@ Begin VB.Form frmWait
    MinButton       =   0   'False
    ScaleHeight     =   645
    ScaleWidth      =   5670
-   ShowInTaskbar   =   0   'False
    StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmdKillApp 
       Caption         =   "Чтобы завершить работу ПО - нажмите здесь"

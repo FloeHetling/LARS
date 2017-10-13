@@ -6,11 +6,6 @@ Attribute VB_Name = "modMAD"
 
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
 
-Public Function PopulateAuditData()
-MsgBox "ОТЛАДКА: Параметры не переданы. Запустите с параметром /edit для редактирования аудит-информации", vbInformation, LARSver
-MsgBox "TODO: модуль автозагрузки информации!!!", vbExclamation, LARSver
-End Function
-
 Public Function RegGetAuditData(ByVal AuditProp As String) As String
 Dim AuditValue As String
 'получаем переменные из функции и передаем их в функцию модуля работы с реестром
@@ -44,15 +39,15 @@ Dim SQL As New ADODB.Connection
     Dim SQLRequest As String, SQLAPRequest As String
     DoEvents
     SQL.Open SQLConnString
-    frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
     SQLData.Open SQLRequestString, SQL, adOpenKeyset
         If SQLMode = laRX Then
-            SQLExecute = SQLData.Fields(ParameterToRead).Value
+            SQLExecute = SQLData.Fields(ParameterToRead).value
         End If
     SQL.Close
     Exit Function
-
+'frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf &
 SQL_error:
-frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 SQLExecute = Err.Number
 End Function

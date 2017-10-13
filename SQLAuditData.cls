@@ -18,7 +18,7 @@ Option Explicit
 
 'local variable(s) to hold property value(s)
 Private mvarCompany As String 'local copy
-Private mvarWSName As String 'local copy
+Private mvarWsName As String 'local copy
 Private mvarWSSerial As String 'local copy
 Private mvarWindowsVersion As String 'local copy
 Private mvarWindowsLicenseModel As String 'local copy
@@ -39,7 +39,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeLicenseModel
+'Syntax: Debug.Print X.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -79,8 +79,8 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.OfficeVersion
-    OfficeVersion = mvarOfficeVersion
+'Syntax: Debug.Print X.OfficeVersion
+    OfficeVersion = GetOfficeVersion
 End Property
 
 
@@ -95,7 +95,7 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsOLPSerial
+'Syntax: Debug.Print X.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
@@ -111,7 +111,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsLicenseModel
+'Syntax: Debug.Print X.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -127,8 +127,8 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WindowsVersion
-    WindowsVersion = mvarWindowsVersion
+'Syntax: Debug.Print X.WindowsVersion
+    WindowsVersion = GetWindowsVersion
 End Property
 
 
@@ -143,24 +143,24 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSSerial
+'Syntax: Debug.Print X.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
 
 
-Public Property Let WSName(ByVal vData As String)
-Attribute WSName.VB_Description = "Сетевое имя ПК"
+Public Property Let WsName(ByVal vData As String)
+Attribute WsName.VB_Description = "Сетевое имя ПК"
 'used when assigning a value to the property, on the left side of an assignment.
 'Syntax: X.WSName = 5
-    mvarWSName = vData
+    mvarWsName = vData
 End Property
 
 
-Public Property Get WSName() As String
+Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.WSName
-    WSName = HostName
+'Syntax: Debug.Print X.WSName
+    WsName = HostName
 End Property
 
 
@@ -175,7 +175,7 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & X.Company
+'Syntax: Debug.Print X.Company
     Company = mvarCompany
 End Property
 
@@ -204,9 +204,9 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
 
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
 SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
-frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf & SQLRequest
+Debug.Print SQLRequest
     SQLData.Open SQLRequest, SQL, adOpenKeyset
-    GetSQLData = SQLData.Fields(AuditParameter).Value
+    GetSQLData = SQLData.Fields(AuditParameter).value
     SQL.Close
     Exit Function
     
@@ -240,7 +240,7 @@ End Function
 '        "Initial Catalog=AIDA;" & _
 '        "User ID=sa;" & _
 '        "Password=happyness;"
-'    frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+'    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
 '    SQLData.Open SQLRequestString, SQL, adOpenKeyset
 '        If SQLMode = laRX Then
 '            SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -249,7 +249,7 @@ End Function
 '    Exit Function
 '
 'SQL_error:
-'frmwriteauditdata.tdeb.Text = frmwriteauditdata.tdeb.Text & vbcrlf & "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+'Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 'SQLExecute = Err.Number
 'End Function
 
@@ -261,7 +261,7 @@ frmwait.Reason.Caption = "Проверка SQL"
 Dim sqlCheckIfAvailable As Long
 sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
     If sqlCheckIfAvailable = -2147467259 Then
-        frmWriteAuditData.chkSQL.Value = 0
+        frmWriteAuditData.chkSQL.value = 0
         frmwait.Hide
         MsgBox "Сервер SQL не доступен." & vbCrLf _
             & " Работа проводится только с реестром!", vbExclamation & vbOKOnly, LARSver

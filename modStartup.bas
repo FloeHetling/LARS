@@ -8,6 +8,7 @@ Option Explicit
 'Глобальные переменные
     Public LARSver As String
     Public InfoBoxes() As String
+    Public HnSArgs() As Variant
     Public HostName As String
     Public enumSQLFields As Integer 'учет нулей в классе SQLAuditData
       
@@ -23,13 +24,24 @@ Option Explicit
         laBlack = 0
     End Enum
     
+'Типы оборудования
+    Public Enum laHardware
+        laCPU
+        laRAM
+        laMotherboard
+        laChipset
+        laSouthBridge
+        laUSBHost
+        laGPU
+        laMonitor
+        laHDD
+    End Enum
     
-    
-
 'Глобальные объекты
 ''Используем класс AuditData, обзываем его thisPC
     Public thisPC As New auditdata
     Public thisPCSQL As New SQLAuditData 'то же самое, только для обращения к SQL
+    Public HnS As New HardAndSoft
     Public Ru As New AliasLibrary 'Библиотека алиасов для SQL запросов
     
 'Подключаемые библиотеки стартового модуля
@@ -40,9 +52,11 @@ Option Explicit
 'Глобальная строка подключения для SQL
     Public SQLConnString As String
 
-Dim CLIArg As String
-
+'Аргументы командной строки
+    Dim CLIArg As String
+        
 Sub Main()
+HnSArgs = Array("WSNAME", "CPUNAME", "RAMTYPE", "RAMTOTALSLOTS", "RAMUSEDSLOTS", "RAMSLOTSTAT", "RAMVALUE", "MBNAME", "MBCHIPSET", "GPUNAME", "MONITORS", "HDD", "HDDCOUNT", "HDDOVERALLSIZE", "CPUSOCKET")
 SQLConnString = "Provider = SQLOLEDB.1;" & _
         "Data Source=tcp:192.168.78.39,1433[oledb];" & _
         "Persist Security Info=False;" & _
@@ -85,19 +99,6 @@ ibIndex = 0
     Next                                                'на выходе у нас есть список полей для этой формы - массив InfoBoxes,
                                                         'по которому мы и будем обращаться к процедурам и функциям
 
-'отправляем параметры коммандной строки в переменную и парсим их
-'CLIArg = Command$
-CLIArg = "/edit"
-    Select Case CLIArg
-        
-        Case "/edit"
-        frmWriteAuditData.Show
-        
-        Case Else
-        Call PopulateAuditData
-                
-    End Select
-
 'получаем в глобальную переменную текущее имя ПК
 Dim dwLen As Long
     'Создаем буфер
@@ -107,4 +108,18 @@ Dim dwLen As Long
     GetComputerName HostName, dwLen
     'Убираем лишние (нулевые) символы
     HostName = Left(HostName, dwLen)
+
+'отправляем параметры коммандной строки в переменную и парсим их
+CLIArg = Command$
+    Select Case CLIArg
+        
+        Case "/edit"
+        frmWriteAuditData.Show
+        
+        Case "/wmi"
+        frmWMIQL.Show
+        
+        Case Else
+        Call PopulateAuditData
+    End Select
 End Sub
