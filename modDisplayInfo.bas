@@ -283,8 +283,8 @@ For tmpctr = 0 To intMonitorCount - 1
              "Серийный номер: " & arrMonitorInfo(tmpctr, 3) & vbCrLf & _
              "VESA ID: " & arrMonitorInfo(tmpctr, 0) & vbCrLf & _
              "Дата производства: " & arrMonitorInfo(tmpctr, 2) & vbCrLf & vbCrLf
-             'Debug.Print ".........." & "Device ID: " & arrMonitorInfo(tmpctr,1)
-             'Debug.Print ".........." & "EDID Version: " & arrMonitorInfo(tmpctr,5)
+             'debug.print".........." & "Device ID: " & arrMonitorInfo(tmpctr,1)
+             'debug.print".........." & "EDID Version: " & arrMonitorInfo(tmpctr,5)
                  i = i + 1
 '         End If
      End If

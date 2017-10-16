@@ -8,6 +8,7 @@ Option Explicit
 'Глобальные переменные
     Public LARSver As String
     Public InfoBoxes() As String
+    Public SQLBoxes() As String
     Public HnSArgs() As Variant
     Public HostName As String
     Public enumSQLFields As Integer 'учет нулей в классе SQLAuditData
@@ -48,14 +49,26 @@ Option Explicit
 ''Библиотека и функция получения имени ПК
     Private Const MAX_COMPUTERNAME_LENGTH As Long = 31
     Private Declare Function GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
+    Public Declare Function IsUserAnAdmin Lib "Shell32" Alias "#680" () As Integer
+    
+'    Sub Form_Load()
+'
+'   If IsUserAnAdmin() = 0 Then
+'     MsgBox "Not admin"
+'   Else
+'     MsgBox "Admin"
+'   End If
+'
+'End Sub
     
 'Глобальная строка подключения для SQL
     Public SQLConnString As String
 
 'Аргументы командной строки
-    Dim CLIArg As String
+Public CLIArg As String
         
 Sub Main()
+CLIArg = Command$
 HnSArgs = Array("WSNAME", "CPUNAME", "RAMTYPE", "RAMTOTALSLOTS", "RAMUSEDSLOTS", "RAMSLOTSTAT", "RAMVALUE", "MBNAME", "MBCHIPSET", "GPUNAME", "MONITORS", "HDD", "HDDCOUNT", "HDDOVERALLSIZE", "CPUSOCKET")
 SQLConnString = "Provider = SQLOLEDB.1;" & _
         "Data Source=tcp:192.168.78.39,1433[oledb];" & _
@@ -64,14 +77,27 @@ SQLConnString = "Provider = SQLOLEDB.1;" & _
         "User ID=sa;" & _
         "Connect Timeout=2;" & _
         "Password=happyness;"
+isSQLChecked = False
 'записываем в глобальную переменную зазвание и версию ПО
 LARSver = App.ProductName & ", версия " & App.Major & "." & App.Minor & "." & App.Revision & " - " & App.CompanyName
 'проверяем, запущен ли другой экземпляр
 'если да - прибиваем агент нахрен
     If App.PrevInstance = True Then
+        MsgBox "ЛАРС уже работает! Пожалуйста, немного подождите." & vbCrLf & "Или снимите задачу ПО через Диспетчер задач", vbExclamation, LARSver
         Exit Sub
         End
     End If
+
+'получаем в глобальную переменную текущее имя ПК
+Dim dwLen As Long
+    'Создаем буфер
+    dwLen = MAX_COMPUTERNAME_LENGTH + 1
+    HostName = String(dwLen, "X")
+    'Получаем имя ПК
+    GetComputerName HostName, dwLen
+    'Убираем лишние (нулевые) символы
+    HostName = Left(HostName, dwLen)
+
 
 'создаем список имеющихся на форме инфоокон и запихиваем их в публичный массив
 ''
@@ -98,28 +124,39 @@ ibIndex = 0
         End If
     Next                                                'на выходе у нас есть список полей для этой формы - массив InfoBoxes,
                                                         'по которому мы и будем обращаться к процедурам и функциям
-
-'получаем в глобальную переменную текущее имя ПК
-Dim dwLen As Long
-    'Создаем буфер
-    dwLen = MAX_COMPUTERNAME_LENGTH + 1
-    HostName = String(dwLen, "X")
-    'Получаем имя ПК
-    GetComputerName HostName, dwLen
-    'Убираем лишние (нулевые) символы
-    HostName = Left(HostName, dwLen)
-
+Dim SQLibName As String
+ibIndex = 0
+    For Each Ctrl In frmWriteAuditData.Controls
+        If InStr(1, Ctrl.Tag, "SQLbox") <> 0 Then
+            ReDim Preserve SQLBoxes(ibIndex)
+            Dim SQLBoxTag() As String
+            SQLBoxTag = Split(Ctrl.Tag, ",")
+            SQLibName = SQLBoxTag(1)
+            SQLBoxes(ibIndex) = SQLibName
+            ibIndex = ibIndex + 1
+        End If
+    Next
+    
 'отправляем параметры коммандной строки в переменную и парсим их
 CLIArg = Command$
     Select Case CLIArg
         
         Case "/edit"
-        frmWriteAuditData.Show
-        
+            If IsUserAnAdmin() = 1 Then
+                frmWriteAuditData.Show
+            Else
+                MsgBox "Запустите ПО с правами администратора!", vbExclamation, LARSver
+                End
+            End If
         Case "/wmi"
         frmWMIQL.Show
-        
         Case Else
-        Call PopulateAuditData
+            If IsUserAnAdmin() = 1 Then
+                Call PopulateAuditData
+                Exit Sub
+            Else
+                MsgBox "Запустите ПО с правами администратора!", vbExclamation, LARSver
+                End
+            End If
     End Select
 End Sub

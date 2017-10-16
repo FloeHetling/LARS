@@ -47,7 +47,7 @@ End Property
 
 Public Property Get HDDOverallSize() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.HDDOverallSize
+'Syntax: debug.printX.HDDOverallSize
     HDDOverallSize = mvarHDDOverallSize
 End Property
 
@@ -63,7 +63,7 @@ End Property
 
 Public Property Get HDDCount() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.HDDCount
+'Syntax: debug.printX.HDDCount
     HDDCount = mvarHDDCount
 End Property
 
@@ -79,7 +79,7 @@ End Property
 
 Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WsName
+'Syntax: debug.printX.WsName
     WsName = HostName
 End Property
 
@@ -138,7 +138,7 @@ End Property
 
 Public Property Get HDD() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.HDD
+'Syntax: debug.printX.HDD
     HDD = mvarHDD
 End Property
 
@@ -152,7 +152,7 @@ End Property
 
 Public Property Get Monitors() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.Monitors
+'Syntax: debug.printX.Monitors
     Monitors = mvarMonitors
 End Property
 
@@ -166,7 +166,7 @@ End Property
 
 Public Property Get GPUName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.GPUName
+'Syntax: debug.printX.GPUName
     GPUName = mvarGPUName
 End Property
 
@@ -180,7 +180,7 @@ End Property
 
 Public Property Get MBChipset() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.MBChipset
+'Syntax: debug.printX.MBChipset
     MBChipset = mvarMBChipset
 End Property
 
@@ -196,7 +196,7 @@ End Property
 
 Public Property Get MBName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.MBName
+'Syntax: debug.printX.MBName
     MBName = mvarMBName
 End Property
 
@@ -212,7 +212,7 @@ End Property
 
 Public Property Get RAMValue() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.RAMValue
+'Syntax: debug.printX.RAMValue
     RAMValue = mvarRAMValue
 End Property
 
@@ -228,7 +228,7 @@ End Property
 
 Public Property Get RAMSlotStat() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.RAMSlotStat
+'Syntax: debug.printX.RAMSlotStat
     RAMSlotStat = mvarRAMSlotStat
 End Property
 
@@ -244,7 +244,7 @@ End Property
 
 Public Property Get RAMUsedSlots() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.RAMUsedSlots
+'Syntax: debug.printX.RAMUsedSlots
     RAMUsedSlots = mvarRAMUsedSlots
 End Property
 
@@ -260,7 +260,7 @@ End Property
 
 Public Property Get RAMTotalSlots() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.RAMTotalSlots
+'Syntax: debug.printX.RAMTotalSlots
     RAMTotalSlots = mvarRAMTotalSlots
 End Property
 
@@ -276,7 +276,7 @@ End Property
 
 Public Property Get RAMType() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.RAMType
+'Syntax: debug.printX.RAMType
     RAMType = mvarRAMType
 End Property
 
@@ -292,7 +292,7 @@ End Property
 
 Public Property Get CPUSocket() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.CPUSocket
+'Syntax: debug.printX.CPUSocket
     CPUSocket = mvarCPUSocket
 End Property
 
@@ -308,7 +308,7 @@ End Property
 
 Public Property Get CPUName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.CPUName
+'Syntax: debug.printX.CPUName
     CPUName = mvarCPUName
 End Property
 

@@ -6,6 +6,7 @@ Begin VB.Form frmWait
    ClientLeft      =   0
    ClientTop       =   0
    ClientWidth     =   5670
+   Icon            =   "frmWait.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
