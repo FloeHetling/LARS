@@ -6,6 +6,7 @@ Begin VB.Form frmWait
    ClientLeft      =   0
    ClientTop       =   0
    ClientWidth     =   5670
+   Icon            =   "frmWait.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
@@ -102,7 +103,7 @@ Begin VB.Form frmWait
       End
    End
 End
-Attribute VB_Name = "frmwait"
+Attribute VB_Name = "frmWait"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -112,11 +113,11 @@ Dim TickerIndex As Integer, KillTime As Integer
 Dim OddEven As Boolean
 
 Private Sub Animate_Timer()
+DoEvents
     If KillTime = 0 Then
         Me.Height = 645
         container.Height = 615
     End If
-DoEvents
     If TickerIndex = 0 Then
         If OddEven = False Then OddEven = True Else OddEven = False
     End If
@@ -132,7 +133,7 @@ TickerIndex = TickerIndex + 1
     If TickerIndex = 5 Then TickerIndex = 0
 KillTime = KillTime + 1
 If KillTime > 200 Then
-frmwait.Height = 1230
+frmWait.Height = 1230
 container.Height = 1215
 End If
 End Sub
@@ -153,7 +154,7 @@ KillTime = 0
 Animate.Enabled = False
 Me.Height = 645
 container.Height = 615
-Unload Me
+Unload frmWait
 End Sub
 
 Private Sub Form_Terminate()

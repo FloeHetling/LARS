@@ -28,7 +28,21 @@ Private mvarWindowsLicenseModel As String
 Private mvarWindowsOLPSerial As String
 Private mvarOfficeVersion As String
 Private mvarOfficeLicenseModel As String
+Private mvarOfficeOLPSerial As String
 'local variable(s) to hold property value(s)
+
+Public Property Let OfficeOLPSerial(ByVal vData As String)
+'used when assigning a value to the property, on the left side of an assignment.
+'Syntax: X.OfficeOLPSerial = 5
+    mvarOfficeOLPSerial = vData
+End Property
+
+
+Public Property Get OfficeOLPSerial() As String
+'used when retrieving value of a property, on the right side of an assignment.
+'Syntax: debug.printX.OfficeOLPSerial
+    OfficeOLPSerial = mvarOfficeOLPSerial
+End Property
 
 Public Property Let OfficeLicenseModel(ByVal vData As String)
 'used when assigning a value to the property, on the left side of an assignment.
@@ -39,7 +53,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeLicenseModel
+'Syntax: debug.printX.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -87,7 +101,7 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeVersion
+'Syntax: debug.printX.OfficeVersion
     OfficeVersion = GetOfficeVersion
 End Property
 
@@ -103,7 +117,7 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsOLPSerial
+'Syntax: debug.printX.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
@@ -119,7 +133,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsLicenseModel
+'Syntax: debug.printX.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -135,7 +149,7 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsVersion
+'Syntax: debug.printX.WindowsVersion
     WindowsVersion = GetWindowsVersion
 End Property
 
@@ -151,7 +165,7 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSSerial
+'Syntax: debug.printX.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
@@ -167,7 +181,7 @@ End Property
 
 Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSName
+'Syntax: debug.printX.WSName
     WsName = HostName
 End Property
 
@@ -183,6 +197,6 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.Company
+'Syntax: debug.printX.Company
     Company = mvarCompany
 End Property

@@ -5,6 +5,8 @@ Attribute VB_Name = "modMAD"
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
+Public isSQLChecked As Boolean
+Public tmpSQLAvailable As Boolean
 
 Public Function RegGetAuditData(ByVal AuditProp As String) As String
 Dim AuditValue As String
@@ -50,4 +52,18 @@ Dim SQL As New ADODB.Connection
 SQL_error:
 Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 SQLExecute = Err.Number
+End Function
+
+Public Function isSQLAvailable() As Boolean
+Dim sqlCheckIfAvailable As Long
+If isSQLChecked = False Then
+    sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
+        If sqlCheckIfAvailable = -2147467259 Then
+            tmpSQLAvailable = False
+        Else
+            tmpSQLAvailable = True
+        End If
+    isSQLChecked = True
+End If
+isSQLAvailable = tmpSQLAvailable
 End Function

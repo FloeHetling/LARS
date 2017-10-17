@@ -25,6 +25,7 @@ Private mvarWindowsLicenseModel As String 'local copy
 Private mvarWindowsOLPSerial As String 'local copy
 Private mvarOfficeVersion As String 'local copy
 Private mvarOfficeLicenseModel As String 'local copy
+Private mvarOfficeOLPSerial As String
 Public Enum laSQLMode
     laTX
     laRX
@@ -39,7 +40,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeLicenseModel
+'Syntax: debug.printX.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -79,7 +80,7 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.OfficeVersion
+'Syntax: debug.printX.OfficeVersion
     OfficeVersion = GetOfficeVersion
 End Property
 
@@ -95,11 +96,22 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsOLPSerial
+'Syntax: debug.printX.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
+Public Property Let OfficeOLPSerial(ByVal vData As String)
+'used when assigning a value to the property, on the left side of an assignment.
+'Syntax: X.OfficeOLPSerial = 5
+    mvarOfficeOLPSerial = vData
+End Property
 
+
+Public Property Get OfficeOLPSerial() As String
+'used when retrieving value of a property, on the right side of an assignment.
+'Syntax: debug.printX.OfficeOLPSerial
+    OfficeOLPSerial = mvarOfficeOLPSerial
+End Property
 
 Public Property Let WindowsLicenseModel(ByVal vData As String)
 Attribute WindowsLicenseModel.VB_Description = "Модель лицензирования ОС"
@@ -111,7 +123,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsLicenseModel
+'Syntax: debug.printX.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -127,7 +139,7 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WindowsVersion
+'Syntax: debug.printX.WindowsVersion
     WindowsVersion = GetWindowsVersion
 End Property
 
@@ -143,7 +155,7 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSSerial
+'Syntax: debug.printX.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
@@ -159,7 +171,7 @@ End Property
 
 Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.WSName
+'Syntax: debug.printX.WSName
     WsName = HostName
 End Property
 
@@ -175,7 +187,7 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: Debug.Print X.Company
+'Syntax: debug.printX.Company
     Company = mvarCompany
 End Property
 
@@ -240,7 +252,7 @@ End Function
 '        "Initial Catalog=AIDA;" & _
 '        "User ID=sa;" & _
 '        "Password=happyness;"
-'    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+'    debug.print"Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
 '    SQLData.Open SQLRequestString, SQL, adOpenKeyset
 '        If SQLMode = laRX Then
 '            SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -249,25 +261,25 @@ End Function
 '    Exit Function
 '
 'SQL_error:
-'Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+'debug.print"Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 'SQLExecute = Err.Number
 'End Function
 
 
-Public Function CheckSQLAvailability() As Boolean
-Screen.MousePointer = 11
-frmwait.Show
-frmwait.Reason.Caption = "Проверка SQL"
-Dim sqlCheckIfAvailable As Long
-sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
-    If sqlCheckIfAvailable = -2147467259 Then
-        frmWriteAuditData.chkSQL.value = 0
-        frmwait.Hide
-        MsgBox "Сервер SQL не доступен." & vbCrLf _
-            & " Работа проводится только с реестром!", vbExclamation & vbOKOnly, LARSver
-        frmWriteAuditData.chkSQL.Enabled = False
-    End If
-frmwait.Hide
-Screen.MousePointer = 0
-End Function
+'Public Function CheckSQLAvailability() As Boolean
+'Screen.MousePointer = 11
+'frmwait.Show
+'frmwait.Reason.Caption = "Проверка SQL"
+'Dim sqlCheckIfAvailable As Long
+'sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
+'    If sqlCheckIfAvailable = -2147467259 Then
+'        frmWriteAuditData.chkSQL.value = 0
+'        frmwait.Hide
+'        MsgBox "Сервер SQL не доступен." & vbCrLf _
+'            & " Работа проводится только с реестром!", vbExclamation & vbOKOnly, LARSver
+'        frmWriteAuditData.chkSQL.Enabled = False
+'    End If
+'frmwait.Hide
+'Screen.MousePointer = 0
+'End Function
 

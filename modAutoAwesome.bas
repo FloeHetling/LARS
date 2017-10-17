@@ -15,10 +15,16 @@ Public cWinVer As String
 Public cWinSer As String
 Public cOffVer As String
 Public cProcVer As String
+Public MailReport As String, MRBaseString As String
+Public Const RegNoData = "Нет данных"
+Public Const SqlNoData = ""
+Public AuditorOnly As Boolean
 
 
 Public Function PopulateAuditData()
 Debug.Print "Старт функции PopulateAuditData"
+MailReport = "Отчет ЛАРС об отсутствующих параметрах на рабочей станции " & HostName & ":" & vbCrLf
+MRBaseString = MailReport
 On Error Resume Next
     Dim HW_query As String
     Dim HW_results As Object
@@ -35,7 +41,7 @@ HnS.Reset
     HW_query = "SELECT * FROM Win32_Processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
     For Each HW_info In HW_results
-        HnS.CPUName = HW_info.name
+        HnS.CPUName = HW_info.Name
     Next HW_info
     
 ''CPUSOCKET
@@ -136,31 +142,162 @@ HnS.Reset
     HnS.HDDCount = HDDrivesCount
     HnS.HDDOverallSize = HDDOverallSpace
 
-Dim SQLAPRequest As String, SQLRequest As String, HnSValue As String, HnSArgsIndex As Integer
-SQLRequest = "SELECT WSName FROM aida.dbo.hwinfo WHERE WSName = '" & HostName & "';"
-
-'Проверяем, есть ли в базе индекс с нашим именем ПК
-'Если нет - добавляем
-If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
-        SQLRequest = "INSERT INTO dbo.hwinfo (WSName) VALUES ('" & HostName & "');"
-        SQLExecute SQLRequest, laTX
+If isSQLAvailable = True Then
+    Dim SQLAPRequest As String, SQLRequest As String, HnSValue As String, HnSArgsIndex As Integer
+    SQLRequest = "SELECT WSName FROM aida.dbo.hwinfo WHERE WSName = '" & HostName & "';"
+    
+    'Проверяем, есть ли в базе индекс с нашим именем ПК
+    'Если нет - добавляем
+    If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
+            SQLRequest = "INSERT INTO dbo.hwinfo (WSName) VALUES ('" & HostName & "');"
+            SQLExecute SQLRequest, laTX
+    End If
+    
+    'Исполняем для всех собранных параметров
+    For HnSArgsIndex = 0 To UBound(HnSArgs)
+        'Получаем имя параметра в SQLAPRequest
+            SQLAPRequest = HnSArgs(HnSArgsIndex)
+        'Получаем значение параметра в HnSValue
+            HnSValue = CallByName(HnS, HnSArgs(HnSArgsIndex), VbGet)
+        'Обновляем таблицу HWInfo - ставим значение SQLAPRequest равным HnSValue если выбранная запись содержит имя ПК
+            SQLRequest = "UPDATE aida.dbo.hwinfo SET " & SQLAPRequest & " = '" & HnSValue & "' WHERE WSName = '" & HostName & "';"
+            SQLExecute SQLRequest, laTX
+    Next HnSArgsIndex
 End If
 
-'Исполняем для всех собранных параметров
-For HnSArgsIndex = 0 To UBound(HnSArgs)
-    'Получаем имя параметра в SQLAPRequest
-        SQLAPRequest = HnSArgs(HnSArgsIndex)
-    'Получаем значение параметра в HnSValue
-        HnSValue = CallByName(HnS, HnSArgs(HnSArgsIndex), VbGet)
-    'Обновляем таблицу HWInfo - ставим значение SQLAPRequest равным HnSValue если выбранная запись содержит имя ПК
-        SQLRequest = "UPDATE aida.dbo.hwinfo SET " & SQLAPRequest & " = '" & HnSValue & "' WHERE WSName = '" & HostName & "';"
-        SQLExecute SQLRequest, laTX
-Next HnSArgsIndex
 
 
+'Составляем отчет на основе отсутствующих записей в реестре
+'Если значения в реестре нет - пишем из SQL в реестр
+'Иначе пишем значения из реестра в SQL
+'Если и в реестре и в базе значений нет - добавляем строчку в отчет
+
+    If isSQLAvailable = True Then
+        'Читаем значения из реестра
+        thisPC.RegLoad
+        'Читаем значения из SQL
+        thisPCSQL.SQLLoad (HostName)
+        
+        If thisPC.Company = RegNoData Then
+            If thisPCSQL.Company = SqlNoData Then
+                MailReport = MailReport & "<br>Не заполнена информация о компании"
+            Else
+                thisPC.Company = thisPCSQL.Company
+            End If
+        Else
+        thisPCSQL.Company = thisPC.Company
+        End If
+        
+        If thisPC.WsName = RegNoData Then
+            If thisPCSQL.WsName = SqlNoData Then
+                MailReport = MailReport & "<br>Не заполнена информация о сетевом имени компа." & "<br>Чего в принципе быть не может. Значит в проге ошибка!"
+            Else
+                thisPC.WsName = thisPCSQL.WsName
+            End If
+        Else
+        thisPCSQL.WsName = thisPC.WsName
+        End If
+        
+        If thisPC.WSSerial = RegNoData Then
+            If thisPCSQL.WSSerial = SqlNoData Then
+                MailReport = MailReport & "<br>Не введен номер ПК с этикетки"
+            Else
+                thisPC.WSSerial = thisPCSQL.WSSerial
+            End If
+        Else
+        thisPCSQL.WSSerial = thisPC.WSSerial
+        End If
+        
+        If thisPC.WindowsVersion = RegNoData Then
+            If thisPCSQL.WindowsVersion = SqlNoData Then
+                MailReport = MailReport & "<br>Не заполнена информация о версии Windows. ОШИБКА: быть этого не может!!!"
+            Else
+                thisPC.WindowsVersion = thisPCSQL.WindowsVersion
+            End If
+        Else
+        thisPCSQL.WindowsVersion = thisPC.WindowsVersion
+        End If
+        
+        If thisPC.WindowsLicenseModel = RegNoData Then
+            If thisPCSQL.WindowsLicenseModel = SqlNoData Then
+                MailReport = MailReport & "<br>Нет информации о модели лицензирования ОС"
+            Else
+                thisPC.WindowsLicenseModel = thisPCSQL.WindowsLicenseModel
+            End If
+        Else
+        thisPCSQL.WindowsLicenseModel = thisPC.WindowsLicenseModel
+        End If
+        
+        If thisPC.WindowsOLPSerial = RegNoData And thisPC.WindowsLicenseModel = "OLP" Then
+            If (thisPCSQL.WindowsOLPSerial = SqlNoData) Or (thisPCSQL.WindowsOLPSerial = RegNoData) Then
+                MailReport = MailReport & "<br>Нет информации о номере OLP Windows"
+            Else
+                thisPC.WindowsOLPSerial = thisPCSQL.WindowsOLPSerial
+            End If
+        Else
+        thisPCSQL.WindowsOLPSerial = thisPC.WindowsOLPSerial
+        End If
+        
+        If thisPC.OfficeVersion = RegNoData Then
+            If thisPCSQL.OfficeVersion = SqlNoData Then
+                MailReport = MailReport & "<br>Не заполнена информация о версии Офиса. Или он просто не установлен."
+            Else
+                thisPC.OfficeVersion = thisPCSQL.OfficeVersion
+            End If
+        Else
+        thisPCSQL.OfficeVersion = thisPC.OfficeVersion
+        End If
+        
+        If thisPC.OfficeLicenseModel = RegNoData Then
+            If thisPCSQL.OfficeLicenseModel = SqlNoData Then
+                MailReport = MailReport & "<br>Не заполнена информация о модели лицензирования Офиса"
+            Else
+                thisPC.OfficeLicenseModel = thisPCSQL.OfficeLicenseModel
+            End If
+        Else
+        thisPCSQL.OfficeLicenseModel = thisPC.OfficeLicenseModel
+        End If
+        
+        If thisPC.OfficeOLPSerial = RegNoData And thisPC.OfficeLicenseModel = "OLP" Then
+            If (thisPCSQL.OfficeOLPSerial = SqlNoData) Or (thisPCSQL.OfficeOLPSerial = RegNoData) Then
+                MailReport = MailReport & "<br>Нет номера OLP Офиса"
+            Else
+                thisPC.OfficeOLPSerial = thisPCSQL.OfficeOLPSerial
+            End If
+        Else
+        thisPCSQL.OfficeOLPSerial = thisPC.OfficeOLPSerial
+        End If
+        
+        thisPC.RegSave
+        thisPCSQL.SQLSave (HostName)
+
+    End If
+    
+'Закончили сбор данных
+'Обрабатываем собранное и если есть чего - отправляем по почте
+
+
+    If MailReport <> MRBaseString Then
+        MailReport = MailReport & "<br><br>Отчет сформирован " & Time & _
+                                    " " & Date & _
+                                    "." & "<br>Советую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
+        If AuditorOnly = True Then
+            frmReport.SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
+            WinsockState = MAIL_CONNECT
+        End If
+    End If
 
 Debug.Print "ОК: Функция PopulateAuditData исполнена" & vbCrLf
-End
+
+    If AuditorOnly = False Then
+        MailMessage = MailReport
+            If MsgBox("Аудитор завершил процедуру." & vbCrLf & "Отправить результаты проверки?", vbQuestion & vbYesNo, LARSver) = vbYes Then
+                frmReport.Show
+            Else
+                MsgBox "Вы можете выполнить отправку позже используя форму обратной связи." & vbCrLf & "Для этого выполните Инструменты - Сообщить о различиях" & vbCrLf & "или воспользуйтесь сочетанием клавиш Ctrl+E", vbInformation, LARSver
+                frmWriteAuditData.cmdReport.Enabled = True
+            End If
+    End If
 End Function
 
 Public Function toGB(Bytes As Double) As Double
@@ -207,114 +344,12 @@ Public Function GetOfficeVersion() As String
                 OVerString = "2007"
                 Case "14"
                 OVerString = "2010"
+                Case "15"
+                OVerString = "2013"
         End Select
         GetOfficeVersion = "Microsoft Office " & OVerString
 End Function
 
-Public Function GetWindowsKey() As String
-
-Dim hKey As Long, lDataSize As Long, szBinData As String, nIndx As Integer
-Dim strComputer, message
-Dim intMonitorCount
-Dim oRegistry, sBaseKey, sBaseKey2, sBaseKey3, skey, skey2, skey3
-Dim sValue
-Dim iRC, iRC2, iRC3
-Dim arSubKeys, arSubKeys2, arSubKeys3, arrintDProdID
-Dim strRawEDID
-Dim ByteValue, strSerFind, strMdlFind
-Dim intSerFoundAt, intMdlFoundAt, findit
-Dim tmpser, tmpmdl, tmpctr
-Dim batch, bHeader
-
-strComputer = HostName
-strComputer = UCase(strComputer)
-
-Dim HexBuf() As Byte
-
-intMonitorCount = 0
-Const HKLM = &H80000002 'HKEY_LOCAL_MACHINE
-'get a handle to the WMI registry object
-On Error Resume Next
-Set oRegistry = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "/root/default:StdRegProv")
- 
-        If Err <> 0 Then
-            If batch Then
-                EchoAndLog strComputer & ",,,,," & Err.Description
-            Else
-                MsgBox "Failed. " & Err.Description, vbCritical + vbOKOnly, strComputer
-                Exit Function
-            End If
-        End If
-         
-
-        sBaseKey = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-        oRegistry.GetBinaryValue HKLM, sBaseKey, "DigitalProductId", HexBuf
-'            For nIndx = 0 To UBound(HexBuf()) Step 1
-'                szBinData = szBinData + Right("00" + Hex(HexBuf(nIndx)), 2) + " "
-'            Next nIndx
-'        szBinData = Trim(szBinData)
-
-        Dim tmp As String
-        tmp = ""
-
-        Dim l As Integer
-        For l = LBound(HexBuf) To UBound(HexBuf)
-            tmp = tmp & " " & Hex(HexBuf(l))
-        Next
-
-        Dim StartOffset As Integer
-        StartOffset = 52
-        Dim EndOffset As Integer
-        EndOffset = 67
-        Dim Digits(24) As String
-
-        Digits(0) = "B": Digits(1) = "C": Digits(2) = "D": Digits(3) = "F"
-        Digits(4) = "G": Digits(5) = "H": Digits(6) = "J": Digits(7) = "K"
-        Digits(8) = "M": Digits(9) = "P": Digits(10) = "Q": Digits(11) = "R"
-        Digits(12) = "T": Digits(13) = "V": Digits(14) = "W": Digits(15) = "X"
-        Digits(16) = "Y": Digits(17) = "2": Digits(18) = "3": Digits(19) = "4"
-        Digits(20) = "6": Digits(21) = "7": Digits(22) = "8": Digits(23) = "9"
-
-        Dim dLen As Integer
-        dLen = 29
-        Dim sLen As Integer
-        sLen = 15
-        Dim HexDigitalPID(15) As String
-        Dim Des(30) As String
-
-        Dim tmp2 As String
-        tmp2 = ""
-        Dim i As Integer
-        For i = StartOffset To EndOffset
-            HexDigitalPID(i - StartOffset) = HexBuf(i)
-            tmp2 = tmp2 & " " & Hex(HexDigitalPID(i - StartOffset))
-        Next
-
-        Dim KEYSTRING As String
-        KEYSTRING = ""
-        For i = dLen - 1 To 0 Step -1
-            If ((i + 1) Mod 6) = 0 Then
-                Des(i) = "-"
-                KEYSTRING = KEYSTRING & "-"
-            Else
-                Dim HN As Integer
-                HN = 0
-                Dim n As Integer
-                For n = (sLen - 1) To 0 Step -1
-                    Dim value As Integer
-                    value = ((HN * 2 ^ 8) Or HexDigitalPID(n))
-                    HexDigitalPID(n) = value \ 24
-                    HN = (value Mod 24)
-
-                Next
-
-                Des(i) = Digits(HN)
-                KEYSTRING = KEYSTRING & Digits(HN)
-            End If
-        Next
-
-GetWindowsKey = StrReverse(KEYSTRING)
-End Function
 
 Public Function SocketLibrary(ByVal UpgradeMethodIndex As Integer) As String
 If UpgradeMethodIndex <> 0 Then UpgradeMethodIndex = UpgradeMethodIndex - 1
