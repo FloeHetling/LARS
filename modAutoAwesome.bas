@@ -18,11 +18,12 @@ Public cProcVer As String
 Public MailReport As String, MRBaseString As String
 Public Const RegNoData = "Нет данных"
 Public Const SqlNoData = ""
+Public AuditorOnly As Boolean
 
 
 Public Function PopulateAuditData()
 Debug.Print "Старт функции PopulateAuditData"
-MailReport = "Отчет ЛАРС об отсутствующих параметрах на рабочей станции " & HostName & ":"
+MailReport = "Отчет ЛАРС об отсутствующих параметрах на рабочей станции " & HostName & ":" & vbCrLf
 MRBaseString = MailReport
 On Error Resume Next
     Dim HW_query As String
@@ -167,6 +168,9 @@ End If
 
 
 'Составляем отчет на основе отсутствующих записей в реестре
+'Если значения в реестре нет - пишем из SQL в реестр
+'Иначе пишем значения из реестра в SQL
+'Если и в реестре и в базе значений нет - добавляем строчку в отчет
 
     If isSQLAvailable = True Then
         'Читаем значения из реестра
@@ -174,13 +178,9 @@ End If
         'Читаем значения из SQL
         thisPCSQL.SQLLoad (HostName)
         
-        
-        'Если значения в реестре нет - пишем из SQL в реестр
-        'Иначе пишем значения из реестра в SQL
-        'Если и в реестре и в базе значений нет - добавляем строчку в отчет
         If thisPC.Company = RegNoData Then
             If thisPCSQL.Company = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не заполнена информация о компании"
+                MailReport = MailReport & "<br>Не заполнена информация о компании"
             Else
                 thisPC.Company = thisPCSQL.Company
             End If
@@ -190,7 +190,7 @@ End If
         
         If thisPC.WsName = RegNoData Then
             If thisPCSQL.WsName = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не заполнена информация о сетевом имени компа." & vbCrLf & "Чего в принципе быть не может. Значит в проге ошибка!"
+                MailReport = MailReport & "<br>Не заполнена информация о сетевом имени компа." & "<br>Чего в принципе быть не может. Значит в проге ошибка!"
             Else
                 thisPC.WsName = thisPCSQL.WsName
             End If
@@ -200,7 +200,7 @@ End If
         
         If thisPC.WSSerial = RegNoData Then
             If thisPCSQL.WSSerial = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не введен номер ПК с этикетки"
+                MailReport = MailReport & "<br>Не введен номер ПК с этикетки"
             Else
                 thisPC.WSSerial = thisPCSQL.WSSerial
             End If
@@ -210,7 +210,7 @@ End If
         
         If thisPC.WindowsVersion = RegNoData Then
             If thisPCSQL.WindowsVersion = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не заполнена информация о версии Windows. ОШИБКА: быть этого не может!!!"
+                MailReport = MailReport & "<br>Не заполнена информация о версии Windows. ОШИБКА: быть этого не может!!!"
             Else
                 thisPC.WindowsVersion = thisPCSQL.WindowsVersion
             End If
@@ -220,7 +220,7 @@ End If
         
         If thisPC.WindowsLicenseModel = RegNoData Then
             If thisPCSQL.WindowsLicenseModel = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Нет информации о модели лицензирования ОС"
+                MailReport = MailReport & "<br>Нет информации о модели лицензирования ОС"
             Else
                 thisPC.WindowsLicenseModel = thisPCSQL.WindowsLicenseModel
             End If
@@ -230,7 +230,7 @@ End If
         
         If thisPC.WindowsOLPSerial = RegNoData And thisPC.WindowsLicenseModel = "OLP" Then
             If (thisPCSQL.WindowsOLPSerial = SqlNoData) Or (thisPCSQL.WindowsOLPSerial = RegNoData) Then
-                MailReport = MailReport & vbCrLf & "Нет информации о номере OLP Windows"
+                MailReport = MailReport & "<br>Нет информации о номере OLP Windows"
             Else
                 thisPC.WindowsOLPSerial = thisPCSQL.WindowsOLPSerial
             End If
@@ -240,7 +240,7 @@ End If
         
         If thisPC.OfficeVersion = RegNoData Then
             If thisPCSQL.OfficeVersion = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не заполнена информация о версии Офиса. Или он просто не установлен."
+                MailReport = MailReport & "<br>Не заполнена информация о версии Офиса. Или он просто не установлен."
             Else
                 thisPC.OfficeVersion = thisPCSQL.OfficeVersion
             End If
@@ -250,7 +250,7 @@ End If
         
         If thisPC.OfficeLicenseModel = RegNoData Then
             If thisPCSQL.OfficeLicenseModel = SqlNoData Then
-                MailReport = MailReport & vbCrLf & "Не заполнена информация о модели лицензирования Офиса"
+                MailReport = MailReport & "<br>Не заполнена информация о модели лицензирования Офиса"
             Else
                 thisPC.OfficeLicenseModel = thisPCSQL.OfficeLicenseModel
             End If
@@ -260,7 +260,7 @@ End If
         
         If thisPC.OfficeOLPSerial = RegNoData And thisPC.OfficeLicenseModel = "OLP" Then
             If (thisPCSQL.OfficeOLPSerial = SqlNoData) Or (thisPCSQL.OfficeOLPSerial = RegNoData) Then
-                MailReport = MailReport & vbCrLf & "Нет номера OLP Офиса"
+                MailReport = MailReport & "<br>Нет номера OLP Офиса"
             Else
                 thisPC.OfficeOLPSerial = thisPCSQL.OfficeOLPSerial
             End If
@@ -270,14 +270,34 @@ End If
         
         thisPC.RegSave
         thisPCSQL.SQLSave (HostName)
-        'Сообщаем по почте об отсутствующих значениях
+
     End If
+    
+'Закончили сбор данных
+'Обрабатываем собранное и если есть чего - отправляем по почте
+
 
     If MailReport <> MRBaseString Then
-        MsgBox MailReport, vbInformation, LARSver
+        MailReport = MailReport & "<br><br>Отчет сформирован " & Time & _
+                                    " " & Date & _
+                                    "." & "<br>Советую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
+        If AuditorOnly = True Then
+            frmReport.SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
+            WinsockState = MAIL_CONNECT
+        End If
     End If
+
 Debug.Print "ОК: Функция PopulateAuditData исполнена" & vbCrLf
-End
+
+    If AuditorOnly = False Then
+        MailMessage = MailReport
+            If MsgBox("Аудитор завершил процедуру." & vbCrLf & "Отправить результаты проверки?", vbQuestion & vbYesNo, LARSver) = vbYes Then
+                frmReport.Show
+            Else
+                MsgBox "Вы можете выполнить отправку позже используя форму обратной связи." & vbCrLf & "Для этого выполните Инструменты - Сообщить о различиях" & vbCrLf & "или воспользуйтесь сочетанием клавиш Ctrl+E", vbInformation, LARSver
+                frmWriteAuditData.cmdReport.Enabled = True
+            End If
+    End If
 End Function
 
 Public Function toGB(Bytes As Double) As Double

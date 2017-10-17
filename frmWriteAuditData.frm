@@ -588,12 +588,10 @@ Begin VB.Form frmWriteAuditData
       End
       Begin VB.Menu cmdRefreshFromRegistry 
          Caption         =   "Обновить из реестра"
-         Enabled         =   0   'False
          Shortcut        =   {F5}
       End
       Begin VB.Menu cmdRefreshFromSQL 
          Caption         =   "Обновить из базы"
-         Enabled         =   0   'False
          Shortcut        =   ^R
       End
       Begin VB.Menu delim2 
@@ -648,20 +646,13 @@ Private Enum laLoadDataMode
     laLoadFromSQL = 2
 End Enum
 
-Private Function LoadAuditData(Optional LoadFrom As laLoadDataMode)
+Private Function LoadFromRegistry()
 Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
-tResetColor.Enabled = True
 enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
 Status "Работаю", "Загружаю информацию из реестра", laDarkBlue
 thisPC.RegLoad
 
-If isSQLAvailable = True Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
-    Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
-    thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
-    Debug.Print "Загружена информация из SQL"
-End If
-frmWriteAuditData.tDebugPrint.Text = ""
 Debug.Print "Грузим значения в ячейки"
 
     For Each ctlInfobox In Me.Controls                              'Теперь выполняем для каждого инфополя из сформированного в sub_main массива
@@ -686,29 +677,13 @@ Debug.Print "Грузим значения в ячейки"
 '                End If
         End If
     Next
-    
-Debug.Print "Готово"
-Debug.Print "Грузим значения в ячейки SQL"
-    
-    If isSQLAvailable = True Then 'делаем это только если стоит флажок "Сравнить с SQL"
-        For Each SQLInfobox In Me.Controls
-            If InStr(1, SQLInfobox.Tag, "SQLbox") <> 0 Then
-                SQLInfobox.Enabled = False
-                Dim SQLBoxTag() As String
-                SQLBoxTag = Split(SQLInfobox.Tag, ",")
-                ctlIBValue = SQLBoxTag(1)
-                cbAuditValueSQL = CallByName(thisPCSQL, ctlIBValue, VbGet)
-                        If Not cbAuditValueSQL = "sql_err_nodata" Then
-                            SQLInfobox.Text = cbAuditValueSQL
-                        Else
-                            SQLInfobox.Text = ""
-                        End If
-            End If
-        Next
-    End If
+tResetColor.Enabled = True
+End Function
 
+Private Function LoadAuditData(Optional LoadFrom As laLoadDataMode)
+Call LoadFromRegistry
+Call LoadFromSQL
 Debug.Print "Готово"
-
 isRunOnceDataLoaded = True
 isDataChanged = False
     '' отлов ошибки с пустым ответом сервера
@@ -830,8 +805,53 @@ Shell "cmd.exe", vbNormalFocus
 End Sub
 
 Private Sub cmdPopulateAuditData_Click()
+frmWait.Show
+frmWait.Reason.Caption = "Выполняется Аудитор"
+AuditorOnly = False
 Call PopulateAuditData
+frmWait.Hide
 End Sub
+
+Private Sub cmdRefreshFromRegistry_Click()
+Call LoadFromRegistry
+End Sub
+
+Private Sub cmdRefreshFromSQL_Click()
+Call LoadFromSQL
+End Sub
+
+Private Function LoadFromSQL()
+Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
+enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
+'Заполняем классы
+Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
+Debug.Print "Грузим значения в ячейки SQL"
+If isSQLAvailable = True Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
+    Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
+    thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
+    Debug.Print "Загружена информация из SQL"
+End If
+   
+    If isSQLAvailable = True Then 'делаем это только если стоит флажок "Сравнить с SQL"
+        For Each SQLInfobox In Me.Controls
+            If InStr(1, SQLInfobox.Tag, "SQLbox") <> 0 Then
+                SQLInfobox.Enabled = False
+                Dim SQLBoxTag() As String
+                SQLBoxTag = Split(SQLInfobox.Tag, ",")
+                ctlIBValue = SQLBoxTag(1)
+                cbAuditValueSQL = CallByName(thisPCSQL, ctlIBValue, VbGet)
+                        If Not cbAuditValueSQL = "sql_err_nodata" Then
+                            SQLInfobox.Text = cbAuditValueSQL
+                            SQLInfobox.BackColor = laSand
+                        Else
+                            SQLInfobox.Text = ""
+                        End If
+            End If
+        Next
+    End If
+tResetColor.Enabled = True
+Debug.Print "Готово"
+End Function
 
 Private Sub cmdReport_Click()
 frmReport.Show
@@ -876,9 +896,19 @@ With OffOLP
 End With
 End Sub
 
+Private Sub Form_Terminate()
+End
+End Sub
+
 Private Sub Form_Unload(Cancel As Integer)
 If isDataChanged = True Then
     If MsgBox("Есть несохраненные изменения реестра" & vbCrLf & "Вы точно хотите выйти?", vbQuestion & vbYesNo, LARSver) = vbYes Then
+        End
+    Else
+        Cancel = 1
+    End If
+Else
+    If MsgBox("Закрытие редактора завершает работу ПО" & vbCrLf & "Вы точно хотите выйти?", vbQuestion & vbYesNo, LARSver) = vbYes Then
         End
     Else
         Cancel = 1
@@ -928,7 +958,7 @@ End Sub
 Private Sub tResetColor_Timer()
 Dim ibColor As Integer
     For Each ctlInfobox In Me.Controls
-    If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
+    If (InStr(1, ctlInfobox.Tag, "infobox") <> 0) Or (InStr(1, ctlInfobox.Tag, "SQLbox") <> 0) And Not (InStr(1, ctlInfobox.Tag, "noreset") <> 0) Then ctlInfobox.BackColor = vbWhite
     Next
 tResetColor.Enabled = False
 Status "Готов", "", laBlack
