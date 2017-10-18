@@ -22,15 +22,12 @@ Public Function RegPutAuditData(ByVal AuditProp As String, ByVal auditdata As St
 Call fWriteValue("HKLM", "Software\LARS", AuditProp, "S", auditdata)
 End Function
 
-Public Function cbExists(SearchString As String, ComboBoxForCheck As ComboBox) As Boolean
-Dim cItem As Integer
-                For cItem = 0 To ComboBoxForCheck.ListCount Step 1
-                     If SearchString = ComboBoxForCheck.List(cItem) Then
-                     cbExists = True
-                     Exit Function
-                     End If
-                Next cItem
-                cbExists = False
+Public Function CheckPath(strPath As String) As Boolean
+    If Dir$(strPath) <> "" Then
+        CheckPath = True
+    Else
+        CheckPath = False
+    End If
 End Function
 
 Public Function SQLExecute(ByVal SQLRequestString As String, SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
@@ -44,7 +41,7 @@ Dim SQL As New ADODB.Connection
     Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
     SQLData.Open SQLRequestString, SQL, adOpenKeyset
         If SQLMode = laRX Then
-            SQLExecute = SQLData.Fields(ParameterToRead).value
+            SQLExecute = SQLData.Fields(ParameterToRead).Value
         End If
     SQL.Close
     Exit Function
