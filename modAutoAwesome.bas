@@ -18,7 +18,7 @@ Public cProcVer As String
 Public MailReport As String, MRBaseString As String
 Public Const RegNoData = "Ќет данных"
 Public Const SqlNoData = ""
-Public AuditorOnly As Boolean
+Public AuditorOnly As Boolean, SendFormCallOnly As Boolean
 
 
 Public Function PopulateAuditData()
@@ -41,7 +41,7 @@ HnS.Reset
     HW_query = "SELECT * FROM Win32_Processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
     For Each HW_info In HW_results
-        HnS.CPUName = HW_info.Name
+        HnS.CPUName = HW_info.name
     Next HW_info
     
 ''CPUSOCKET
@@ -282,8 +282,8 @@ End If
                                     " " & Date & _
                                     "." & "<br>—оветую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
         If AuditorOnly = True Then
-            frmReport.SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
-            WinsockState = MAIL_CONNECT
+            SendFormCallOnly = True
+            Load frmReport
         End If
     End If
 
