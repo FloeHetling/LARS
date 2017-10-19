@@ -10,7 +10,7 @@ Option Explicit
     Public InfoBoxes() As String
     Public SQLBoxes() As String
     Public HnSArgs() As Variant
-    Public HostName As String, LARSINIPath As String
+    Public HostName As String, LARSINIPath As String, LARSLogFile As String
     Public enumSQLFields As Integer 'учет нулей в классе SQLAuditData
     Public SilentRun As Boolean, isAllSettingsProvided As Boolean
     
@@ -95,6 +95,9 @@ Option Explicit
 Public CLIArg As String
 
 Public Function isSettingsIntegrityOK() As Boolean
+On Error GoTo INTEGRITYCHECK_ERROR
+Debug.Print " "
+Debug.Print "К работе приступил модуль проверки настроек программы"
 Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr As Integer, Setting As Variant
 
 'Перечисляем, какие настройки из INI мы проверяем
@@ -111,6 +114,9 @@ Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr 
 'Проверяем, существует ли файл в целом
 'Если не существует - сразу ставим False и выходим из процедуры
     If CheckPath(LARSINIPath) <> True Then
+            Debug.Print " "
+            Debug.Print "Не найден файл настроек. Создаем пустой, чтобы модулю сохранения было куда писать настройки"
+            Debug.Print " "
             '''''Создаем структуру файла
             Dim iFileNo As Integer
             iFileNo = FreeFile
@@ -133,8 +139,29 @@ Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr 
     Next Setting
 
 'Если на счетчике провалов есть хоть что-нибудь - целостность настроек явно нарушена.
-    If SErr <> 0 Then isSettingsIntegrityOK = False Else isSettingsIntegrityOK = True
+    If SErr <> 0 Then
+        isSettingsIntegrityOK = False
+        Debug.Print " "
+        Debug.Print "Модуль проверки настроек сообщил, что настройки не корректны."
+        Debug.Print "Упс."
+        Debug.Print "Их надо срочно исправить. Они глобальные! Поправьте файл INI в директории программы"
+        Debug.Print "Или запустите ЛАРС с параметром /edit. С любого ПК."
+    Else
+        isSettingsIntegrityOK = True
+        Debug.Print "Модуль проверки настроек проблем не обнаружил."
+    End If
 
+Debug.Print "Завершение проверки настроек"
+Debug.Print "======================================================="
+Debug.Print " "
+Exit Function
+INTEGRITYCHECK_ERROR:
+Debug.Print " "
+Debug.Print "Модуль проверки корректности настроек сообщил о критической ошибке " & Err.Number & ":"
+Debug.Print Err.description
+Debug.Print "Продолжение работы программы невозможно. Логично, не так ли?"
+Debug.Print "======================================================="
+End
 End Function
 
 Public Function INIQuery(ByVal Div As String, ByVal Param As String) As String
@@ -144,17 +171,8 @@ INIQuery = INIReadResult
 End Function
 
 Sub Main()
+On Error GoTo ERR_STARTUP
 CLIArg = Command$
-
-''записываем в глобальную переменную зазвание и версию ПО
-    LARSver = App.ProductName & " " & _
-                App.Major & "." & App.Minor & _
-                "." & App.Revision & " - " & _
-                App.CompanyName
-
-''Получаем в глобальную переменную путь до файла настроек
-LARSINIPath = Replace(App.Path & "\lars.ini", "\\", "\")
-
 ''получаем в глобальную переменную текущее имя ПК
     Dim dwLen As Long
         'Создаем буфер
@@ -164,6 +182,40 @@ LARSINIPath = Replace(App.Path & "\lars.ini", "\\", "\")
         GetComputerName HostName, dwLen
         'Убираем лишние (нулевые) символы
         HostName = Left(HostName, dwLen)
+
+LARSLogFile = App.Path & "\PCLogs\" & HostName & ".log"
+LARSINIPath = App.Path & "\lars.ini"
+
+
+''записываем в глобальную переменную зазвание и версию ПО
+    LARSver = App.ProductName & " " & _
+                App.Major & "." & App.Minor & _
+                "." & App.Revision & " - " & _
+                App.CompanyName
+
+''Вывести справку если в аргументах какая-нибудь херня и закончить работу
+Dim msgHelp As String
+
+        msgHelp = _
+        LARSver & vbCrLf & vbCrLf & _
+        "Допустимые параметры командной строки:" & vbCrLf & vbCrLf & _
+        "Без параметров - Запустить Аудитор в тихом режиме" & vbCrLf & _
+        "/edit - Проверить настройки ПО и запустить Редактор" & vbCrLf & _
+        "/wmi - Открыть окно прямой работы с WMI" & vbCrLf & _
+        "/? - Показать данное окно"
+        
+        If (CLIArg <> "" And CLIArg <> "/edit" And CLIArg <> "/wmi") Or CLIArg = "/?" Then
+                MsgBox msgHelp, vbInformation, "Справка"
+                End
+        End If
+
+
+''Получаем в глобальную переменную путь до файла настроек
+WriteToLog "=============== 19.10.2017 13:18:47 ===============", StartNewReport
+WriteToLog "LARS APP LAUNCHED. Logfile Codepage is Windows-1251", ContinueReport
+WriteToLog "               VERSION " & App.Major & "." & App.Minor & ", build " & App.Revision & "               "
+WriteToLog "==================================================="
+WriteToLog "Читаю файл конфигурации " & LARSINIPath
         
 isAllSettingsProvided = False
 
@@ -214,10 +266,10 @@ If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено -
     SQLConnString = "Provider = SQLOLEDB.1;" & _
                 "Data Source=" & INIQuery("MAIN", "DataSource") & "" & _
                 "Persist Security Info=False;" & _
-                "Initial Catalog=AIDA;" & _
-                "User ID=sa;" & _
+                "Initial Catalog=LARS;" & _
+                "User ID=lars;" & _
                 "Connect Timeout=2;" & _
-                "Password=happyness;"
+                "Password=XzlOq2JNh8;"
     isSQLChecked = False
 
 ''проверяем, запущен ли другой экземпляр
@@ -293,5 +345,10 @@ If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено -
                 End
             End If
     End Select
-
+Exit Sub
+ERR_STARTUP:
+Debug.Print "На самом старте программы возникла ошибка " & Err.Number & ":"
+Debug.Print Err.description
+Debug.Print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+End
 End Sub

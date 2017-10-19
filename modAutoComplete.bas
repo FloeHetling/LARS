@@ -67,7 +67,7 @@ Public Function AutoMatchCBBox(ByRef cbBox As ComboBox, ByVal KeyAscii As Intege
     Exit Function
     
 ErrHandle:
-    Debug.Print "Failed: AutoCompleteComboBox due to : " & Err.Description
+    Debug.Print "Этого метода здесь быть не должно, но я его все же исполнил с ошибкой " & Err.description
     Debug.Assert False
     AutoMatchCBBox = KeyAscii
     On Error GoTo 0

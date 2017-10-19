@@ -1,13 +1,13 @@
-frmWriteAuditData = 131, 117, 1409, 769, C, 287, 94, 1088, 640, C
+frmWriteAuditData = 131, 117, 1409, 769, , 287, 94, 1088, 640, C
 modStartup = 55, 0, 1282, 664, Z
 modAutoComplete = 26, 26, 980, 569, C
 modRegistry = 4, 12, 922, 533, 
 modMAD = 84, 43, 974, 561, 
 AuditData = 536, 70, 1378, 594, C
-SQLAuditData = 183, 142, 1449, 622, C
+SQLAuditData = 183, 142, 1449, 622, 
 AliasLibrary = 125, 125, 1190, 762, C
 frmWait = 84, 42, 1164, 559, C, 181, 278, 1261, 512, C
-modAutoAwesome = 23, -2, 1561, 752, C
+modAutoAwesome = 23, -2, 1561, 752, 
 HardAndSoft = 125, 125, 1205, 642, C
 frmWMIQL = 150, 150, 1280, 585, C, 664, 253, 1235, 775, C
 modDisplayInfo = 125, 125, 980, 447, C
