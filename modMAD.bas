@@ -47,7 +47,9 @@ Dim SQL As New ADODB.Connection
     Exit Function
 'frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf &
 SQL_error:
-Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+Debug.Print " "
+Debug.Print "МОДУЛЬ SQL СООБЩИЛ ОБ ОШИБКЕ:"
+Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.description
 SQLExecute = Err.Number
 End Function
 
@@ -57,8 +59,14 @@ If isSQLChecked = False Then
     sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
         If sqlCheckIfAvailable = -2147467259 Then
             tmpSQLAvailable = False
+            Debug.Print " "
+            Debug.Print "Модуль проверки SQL сообщил: СЕРВЕР SQL НЕ ДОСТУПЕН"
+            Debug.Print " "
         Else
             tmpSQLAvailable = True
+            Debug.Print " "
+            Debug.Print "Модуль проверки SQL сообщил: УСПЕШНОЕ СОЕДИНЕНИЕ"
+            Debug.Print " "
         End If
     isSQLChecked = True
 End If

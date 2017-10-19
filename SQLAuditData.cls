@@ -215,10 +215,10 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
 '' тоже реализуем с небольшой динамикой
 
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
-SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM lars.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
 Debug.Print SQLRequest
     SQLData.Open SQLRequest, SQL, adOpenKeyset
-    GetSQLData = SQLData.Fields(AuditParameter).value
+    GetSQLData = SQLData.Fields(AuditParameter).Value
     SQL.Close
     Exit Function
     
@@ -229,12 +229,12 @@ End Function
 Private Function SQLWrite(ByVal AuditParameter As String, ByVal CurrentHostname As String, ByVal AuditValue As String) As Boolean
 Dim SQLAPRequest As String, SQLRequest As String
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
-SQLRequest = "SELECT [Сетевое имя] AS WSName FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+SQLRequest = "SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
     If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
         SQLRequest = "INSERT INTO dbo.larspc ([Сетевое имя]) VALUES ('" & CurrentHostname & "');"
         SQLExecute SQLRequest, laTX
     Else
-        SQLRequest = "UPDATE aida.dbo.larspc SET " & SQLAPRequest & " = '" & AuditValue & "' WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+        SQLRequest = "UPDATE lars.dbo.larspc SET " & SQLAPRequest & " = '" & AuditValue & "' WHERE [Сетевое имя] = '" & CurrentHostname & "';"
         SQLExecute SQLRequest, laTX
     End If
 End Function

@@ -22,6 +22,11 @@ Public AuditorOnly As Boolean, SendFormCallOnly As Boolean
 
 
 Public Function PopulateAuditData()
+On Error GoTo ERR_AUDITOR
+Debug.Print " "
+Debug.Print "================================================="
+Debug.Print Date & " " & Time & " - Отчет по исполнению модуля ЛАРС: Аудитор"
+Debug.Print "-------------------------------------------------"
 Debug.Print "Старт функции PopulateAuditData"
 MailReport = "Отчет ЛАРС об отсутствующих параметрах на рабочей станции " & HostName & ":" & vbCrLf
 MRBaseString = MailReport
@@ -36,7 +41,7 @@ HnS.Reset
 '    For Each info In HW_results
 '        var = info.
 '    Next info
-
+Debug.Print "Беру информацию о CPU"
 ''CPUNAME
     HW_query = "SELECT * FROM Win32_Processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -44,6 +49,7 @@ HnS.Reset
         HnS.CPUName = HW_info.name
     Next HW_info
     
+Debug.Print "Беру информацию о сокете"
 ''CPUSOCKET
     HW_query = "SELECT * FROM win32_processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -51,6 +57,7 @@ HnS.Reset
         HnS.CPUSocket = SocketLibrary(HW_info.upgrademethod)
     Next HW_info
 
+Debug.Print "Опрашиваю тип памяти"
 ''RAMTYPE
     HW_query = "SELECT * FROM Win32_PhysicalMemory"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -58,6 +65,7 @@ HnS.Reset
         HnS.RAMType = RAMLibrary(HW_info.MemoryType)
     Next HW_info
 
+Debug.Print "Опрашиваю ОЗУ"
 'RAM
 ''RAMTOTALSLOT
     Dim ramSlotQuery As String, ramModuleQuery As String
@@ -71,6 +79,7 @@ HnS.Reset
         HnS.RAMTotalSlots = ramSlot.MemoryDevices
     Next ramSlot
 
+Debug.Print "Получаю статистику по слотам"
 ''RAMSLOTSTAT
     ramModuleQuery = "SELECT * FROM win32_PhysicalMemory"
     RamModulesCount = 0
@@ -80,23 +89,28 @@ HnS.Reset
         HnS.RAMSlotStat = HnS.RAMSlotStat & ramModule.DeviceLocator & "@" & toGB(ramModule.capacity) & "GB"
         RamModulesCount = RamModulesCount + 1
     Next ramModule
+
+Debug.Print "Получаю количество модулей"
 ''RAMUSEDSLOTS
     HnS.RAMUsedSlots = RamModulesCount
-  
+
+Debug.Print "Получаю количество ОЗУ"
 ''RAMVALUE
     HW_query = "SELECT * FROM Win32_ComputerSystem"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
     For Each HW_info In HW_results
         HnS.RAMValue = toGB(HW_info.TotalPhysicalMemory) & " GB."
     Next HW_info
-   
+
+Debug.Print "Запрашиваю модель материнской платы"
 ''MBNAME
     HW_query = "SELECT * FROM Win32_BaseBoard"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
     For Each HW_info In HW_results
         HnS.MBName = HW_info.Manufacturer & " " & HW_info.Product & " REV. " & HW_info.Version
     Next HW_info
-    
+
+Debug.Print "Пытаюсь выяснить что за чипсет стоит на ПК"
 ''MBCHIPSET
     Dim isChipset As String
     HW_query = "SELECT * FROM Win32_PnPEntity"
@@ -106,7 +120,8 @@ HnS.Reset
         isChipset = isChipset + HW_info.Caption
     Next HW_info
         HnS.MBChipset = DeviceEnum(isChipset, laChipset)
-        
+
+Debug.Print "Опрашиваю видеокарту"
 ''GPUNAME
     Dim GPUQuery As String, GPUsCount As Integer
     Dim GPU As Object, GPUs As Object
@@ -118,10 +133,12 @@ HnS.Reset
         HnS.GPUName = HnS.GPUName & GPU.Caption
         GPUsCount = GPUsCount + 1
     Next GPU
-    
+
+Debug.Print "Запрашиваю с мониторов строку производителя и расшифровываю ее"
 ''Monitors
     HnS.Monitors = GetMonitorInfo
 
+Debug.Print "Опрашиваю винчестеры"
 ''HDD
     Dim HDDQuery As String, HDDsQuery As String, HDDModel As String
     Dim HDDisk As Object, HDDisks As Object
@@ -143,13 +160,16 @@ HnS.Reset
     HnS.HDDOverallSize = HDDOverallSpace
 
 If isSQLAvailable = True Then
+    Debug.Print " "
+    Debug.Print "Мне удалось подключиться к SQL"
     Dim SQLAPRequest As String, SQLRequest As String, HnSValue As String, HnSArgsIndex As Integer
-    SQLRequest = "SELECT WSName FROM aida.dbo.hwinfo WHERE WSName = '" & HostName & "';"
+    SQLRequest = "SELECT WSName FROM lars.dbo.hwinfo WHERE WSName = '" & HostName & "';"
     
     'Проверяем, есть ли в базе индекс с нашим именем ПК
     'Если нет - добавляем
     If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
             SQLRequest = "INSERT INTO dbo.hwinfo (WSName) VALUES ('" & HostName & "');"
+            Debug.Print "Исполняю TRANSACT-SQL запрос: " & SQLRequest
             SQLExecute SQLRequest, laTX
     End If
     
@@ -160,9 +180,12 @@ If isSQLAvailable = True Then
         'Получаем значение параметра в HnSValue
             HnSValue = CallByName(HnS, HnSArgs(HnSArgsIndex), VbGet)
         'Обновляем таблицу HWInfo - ставим значение SQLAPRequest равным HnSValue если выбранная запись содержит имя ПК
-            SQLRequest = "UPDATE aida.dbo.hwinfo SET " & SQLAPRequest & " = '" & HnSValue & "' WHERE WSName = '" & HostName & "';"
+            SQLRequest = "UPDATE lars.dbo.hwinfo SET " & SQLAPRequest & " = '" & HnSValue & "' WHERE WSName = '" & HostName & "';"
+            Debug.Print "Записал в базу " & HnSValue
             SQLExecute SQLRequest, laTX
     Next HnSArgsIndex
+Debug.Print "Закончил запись в SQL"
+Debug.Print " "
 End If
 
 
@@ -175,8 +198,12 @@ End If
     If isSQLAvailable = True Then
         'Читаем значения из реестра
         thisPC.RegLoad
+        Debug.Print "Загрузил значения из реестра"
         'Читаем значения из SQL
         thisPCSQL.SQLLoad (HostName)
+        Debug.Print "Загрузил значения из SQL"
+        Debug.Print "Проверяю соответствия"
+        Debug.Print " "
         
         If thisPC.Company = RegNoData Then
             If thisPCSQL.Company = SqlNoData Then
@@ -267,10 +294,16 @@ End If
         Else
         thisPCSQL.OfficeOLPSerial = thisPC.OfficeOLPSerial
         End If
-        
+        Debug.Print "Закончил проверять соответствия. Сформировал по ним отчет"
+        Debug.Print "-----------------------------------"
+        Debug.Print MailReport
+        Debug.Print "-----------------------------------"
+        Debug.Print " "
+        Debug.Print "Выполняю синхронизацию SQL и реестра"
         thisPC.RegSave
         thisPCSQL.SQLSave (HostName)
-
+        Debug.Print "Синхронизация завершена"
+        Debug.Print " "
     End If
     
 'Закончили сбор данных
@@ -282,12 +315,14 @@ End If
                                     " " & Date & _
                                     "." & "<br>Советую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
         If AuditorOnly = True Then
+            Debug.Print "Запускаю отправку через сервер " & SMTPServer & ", порт " & SMTPPort
             SendFormCallOnly = True
             Load frmReport
         End If
     End If
 
-Debug.Print "ОК: Функция PopulateAuditData исполнена" & vbCrLf
+Debug.Print " "
+Debug.Print Date & " " & Time & "ОК: Функция PopulateAuditData исполнена"
 
     If AuditorOnly = False Then
         MailMessage = MailReport
@@ -298,6 +333,13 @@ Debug.Print "ОК: Функция PopulateAuditData исполнена" & vbCrLf
                 frmWriteAuditData.cmdReport.Enabled = True
             End If
     End If
+Exit Function
+
+ERR_AUDITOR:
+Debug.Print Date & " " & Time & "Во время работы Аудитора возникла ошибка " & Err.Number & ":"
+Debug.Print Err.description
+Debug.Print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+End
 End Function
 
 Public Function toGB(Bytes As Double) As Double

@@ -786,9 +786,6 @@ Private Sub chkSQL_Click()
 ' debug.printSQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
 End Sub
 
-Private Sub cmdLaunchAIDA_Click()
-Shell "\\zdc5\work\Administrator\AIDA\aida64.exe", vbNormalFocus
-End Sub
 
 Private Sub cmdCopy_Click(Index As Integer)
 If Index = 4 And sqlinfo(Index).Text <> "" Then WinOLP.Text = sqlinfo(Index).Text

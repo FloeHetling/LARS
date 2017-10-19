@@ -271,7 +271,7 @@ ConnStrDataSource = "tcp:" & tIPAddress.Text & "," & tIPPort.Text & "[oledb]"
 SQLConnString = "Provider = SQLOLEDB.1;" & _
                 "Data Source=" & ConnStrDataSource & "" & _
                 "Persist Security Info=False;" & _
-                "Initial Catalog=AIDA;" & _
+                "Initial Catalog=LARS;" & _
                 "User ID=sa;" & _
                 "Connect Timeout=2;" & _
                 "Password=happyness;"
