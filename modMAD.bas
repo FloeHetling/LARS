@@ -36,9 +36,8 @@ Dim SQLResponse As Variant
 Dim SQL As New ADODB.Connection
     Dim SQLData As New ADODB.Recordset
     Dim SQLRequest As String, SQLAPRequest As String
-    DoEvents
     SQL.Open SQLConnString
-    Debug.Print "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+    WriteToLog "Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
     SQLData.Open SQLRequestString, SQL, adOpenKeyset
         If SQLMode = laRX Then
             SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -47,10 +46,15 @@ Dim SQL As New ADODB.Connection
     Exit Function
 'frmWriteAuditData.tDeb.Text = frmWriteAuditData.tDeb.Text & vbCrLf &
 SQL_error:
-Debug.Print " "
-Debug.Print "МОДУЛЬ SQL СООБЩИЛ ОБ ОШИБКЕ:"
-Debug.Print "Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.description
-SQLExecute = Err.Number
+Dim SQLErrNumber As Long, SQLErrDescription As String
+SQLErrNumber = Err.Number
+SQLErrDescription = Err.description
+    If SQLErrNumber <> 0 Then
+        WriteToLog " "
+        WriteToLog "МОДУЛЬ SQL СООБЩИЛ ОБ ОШИБКЕ:"
+        WriteToLog "Ошибка SQL " & SQLErrNumber & ":" & vbCrLf & SQLErrDescription
+    End If
+SQLExecute = SQLErrNumber
 End Function
 
 Public Function isSQLAvailable() As Boolean
@@ -59,14 +63,14 @@ If isSQLChecked = False Then
     sqlCheckIfAvailable = SQLExecute("SELECT * FROM dbo.larspc", laRX)
         If sqlCheckIfAvailable = -2147467259 Then
             tmpSQLAvailable = False
-            Debug.Print " "
-            Debug.Print "Модуль проверки SQL сообщил: СЕРВЕР SQL НЕ ДОСТУПЕН"
-            Debug.Print " "
+            WriteToLog " "
+            WriteToLog "Модуль проверки SQL сообщил: СЕРВЕР SQL НЕ ДОСТУПЕН"
+            WriteToLog " "
         Else
             tmpSQLAvailable = True
-            Debug.Print " "
-            Debug.Print "Модуль проверки SQL сообщил: УСПЕШНОЕ СОЕДИНЕНИЕ"
-            Debug.Print " "
+            WriteToLog " "
+            WriteToLog "Модуль проверки SQL сообщил: УСПЕШНОЕ СОЕДИНЕНИЕ"
+            WriteToLog " "
         End If
     isSQLChecked = True
 End If

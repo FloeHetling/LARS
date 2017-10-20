@@ -217,9 +217,9 @@ If Not m_blnInitiated Then
     lngResult = InitiateService
     
     If lngResult = 0 Then
-        Debug.Print "OK Winsock service initiated"
+        WriteToLog "OK Winsock service initiated"
     Else
-        Debug.Print "ERROR trying to initiate winsock service"
+        WriteToLog "ERROR trying to initiate winsock service"
         Err.Raise lngResult, "modSocketMaster.InitiateProcesses", GetErrorDescription(lngResult)
         InitiateProcesses = lngResult
     End If
@@ -254,7 +254,7 @@ If m_blnInitiated And m_lngSocksQuantity = 0 Then
         FinalizeProcesses = lngErrorCode
         Err.Raise lngErrorCode, "modSocketMaster.FinalizeProcesses", GetErrorDescription(lngErrorCode)
     Else
-        Debug.Print "OK Winsock service finalized"
+        WriteToLog "OK Winsock service finalized"
     End If
     
     Subclass_Terminate
@@ -371,7 +371,7 @@ If m_lngWindowHandle = 0 Then
     Exit Function
 Else
     CreateWinsockMessageWindow = 0
-    Debug.Print "OK Created winsock message window " & m_lngWindowHandle
+    WriteToLog "OK Created winsock message window " & m_lngWindowHandle
 End If
 End Function
 
@@ -381,7 +381,7 @@ Private Function DestroyWinsockMessageWindow() As Long
 DestroyWinsockMessageWindow = 0
 
 If m_lngWindowHandle = 0 Then
-    Debug.Print "WARNING lngWindowHandle is ZERO"
+    WriteToLog "WARNING lngWindowHandle is ZERO"
     Exit Function
 End If
     
@@ -393,7 +393,7 @@ If lngResult = 0 Then
     DestroyWinsockMessageWindow = sckOutOfMemory
     Err.Raise sckOutOfMemory, "modSocketMaster.DestroyWinsockMessageWindow", "Out of memory"
 Else
-    Debug.Print "OK Destroyed winsock message window " & m_lngWindowHandle
+    WriteToLog "OK Destroyed winsock message window " & m_lngWindowHandle
     m_lngWindowHandle = 0
 End If
     
@@ -466,7 +466,7 @@ Public Function RegisterSocket(ByVal lngSocket As Long, ByVal lngObjectPointer A
 
 If m_colSocketsInst Is Nothing Then
     Set m_colSocketsInst = New Collection
-    Debug.Print "OK Created socket collection"
+    WriteToLog "OK Created socket collection"
     
     If CreateWinsockMessageWindow <> 0 Then
         Err.Raise sckOutOfMemory, "modSocketMaster.RegisterSocket", "Out of memory"
@@ -488,11 +488,11 @@ If blnEvents Then
     lngResult = api_WSAAsyncSelect(lngSocket, m_lngWindowHandle, SOCKET_MESSAGE, lngEvents)
         
     If lngResult = SOCKET_ERROR Then
-        Debug.Print "ERROR trying to register events from socket " & lngSocket
+        WriteToLog "ERROR trying to register events from socket " & lngSocket
         lngErrorCode = Err.LastDllError
         Err.Raise lngErrorCode, "modSocketMaster.RegisterSocket", GetErrorDescription(lngErrorCode)
     Else
-        Debug.Print "OK Registered events from socket " & lngSocket
+        WriteToLog "OK Registered events from socket " & lngSocket
     End If
 End If
 
@@ -512,7 +512,7 @@ If m_colSocketsInst.Count = 0 Then
     Set m_colSocketsInst = Nothing
     Subclass_UnSubclass
     DestroyWinsockMessageWindow
-    Debug.Print "OK Destroyed socket collection"
+    WriteToLog "OK Destroyed socket collection"
 End If
 End Sub
 
@@ -552,7 +552,7 @@ End Function
 Public Sub RegisterAccept(ByVal lngSocket As Long)
 If m_colAcceptList Is Nothing Then
     Set m_colAcceptList = New Collection
-    Debug.Print "OK Created accept collection"
+    WriteToLog "OK Created accept collection"
 End If
 Dim Socket As CSocketMaster
 Set Socket = New CSocketMaster
@@ -580,7 +580,7 @@ m_colAcceptList.Remove "S" & lngSocket
 
 If m_colAcceptList.Count = 0 Then
     Set m_colAcceptList = Nothing
-    Debug.Print "OK Destroyed accept collection"
+    WriteToLog "OK Destroyed accept collection"
 End If
 End Sub
 
@@ -621,7 +621,7 @@ Const MOD_USER As String = "user32"                         'Location of the Set
   
   nLen = LenB(sCode)                                        'Get the machine code length
   nAddrSubclass = api_GlobalAlloc(0, nLen)                  'Allocate fixed memory for machine code buffer
-  Debug.Print "OK Subclass memory allocated at: " & nAddrSubclass
+  WriteToLog "OK Subclass memory allocated at: " & nAddrSubclass
 
   'Copy the code to allocated memory
   Call api_CopyMemory(ByVal nAddrSubclass, ByVal StrPtr(sCode), nLen)
@@ -647,7 +647,7 @@ End Sub
 Private Sub Subclass_Terminate()
   Call Subclass_UnSubclass                                      'UnSubclass if the Subclass thunk is active
   Call api_GlobalFree(nAddrSubclass)                            'Release the allocated memory
-  Debug.Print "OK Freed subclass memory at: " & nAddrSubclass
+  WriteToLog "OK Freed subclass memory at: " & nAddrSubclass
   nAddrSubclass = 0
   ReDim lngTableA1(1 To 1)
   ReDim lngTableA2(1 To 1)
@@ -745,7 +745,7 @@ For Count = 1 To lngMsgCntA
         lngTableA2(Count) = lngObjectPointer
         Exit Sub
     Case lngAsync
-        Debug.Print "WARNING: Async already registered!"
+        WriteToLog "WARNING: Async already registered!"
         Exit Sub
     End Select
 Next Count
@@ -770,7 +770,7 @@ For Count = 1 To lngMsgCntB
         lngTableB2(Count) = lngObjectPointer
         Exit Sub
     Case lngSocket
-        Debug.Print "WARNING: Socket already registered!"
+        WriteToLog "WARNING: Socket already registered!"
         Exit Sub
     End Select
 Next Count

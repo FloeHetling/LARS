@@ -638,7 +638,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit 'повышаем "придирчивость" компилятора - увеличиваем надежность кода
-'debug.print<--> debug.print
+'WriteToLog<--> WriteToLog
 Dim ctlInfobox As Control, SQLInfobox As Control
 Dim isDataChanged As Boolean, isRunOnceDataLoaded As Boolean
 Private Enum laLoadDataMode
@@ -653,7 +653,7 @@ enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 Status "Работаю", "Загружаю информацию из реестра", laDarkBlue
 thisPC.RegLoad
 
-Debug.Print "Грузим значения в ячейки"
+WriteToLog "Грузим значения в ячейки"
 
     For Each ctlInfobox In Me.Controls                              'Теперь выполняем для каждого инфополя из сформированного в sub_main массива
         If InStr(1, ctlInfobox.Tag, "infobox") <> 0 Then            'если в списке тегов есть тег инфобокса
@@ -683,7 +683,7 @@ End Function
 Private Function LoadAuditData(Optional LoadFrom As laLoadDataMode)
 Call LoadFromRegistry
 Call LoadFromSQL
-Debug.Print "Готово"
+WriteToLog "Готово"
 isRunOnceDataLoaded = True
 isDataChanged = False
     '' отлов ошибки с пустым ответом сервера
@@ -783,7 +783,7 @@ isDataChanged = True
 End Sub
 
 Private Sub chkSQL_Click()
-' debug.printSQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
+' WriteToLogSQLExecute("SELECT * FROM dbo.larspc", laRX) должно быть не равно -2147467259
 End Sub
 
 
@@ -822,11 +822,11 @@ Dim ctlIBValue As String, cbAuditValue As String, cbAuditValueSQL As String
 enumSQLFields = UBound(InfoBoxes) - LBound(InfoBoxes) + 1
 'Заполняем классы
 Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
-Debug.Print "Грузим значения в ячейки SQL"
+WriteToLog "Грузим значения в ячейки SQL"
 If isSQLAvailable = True Then     'Здесь обращаемся к имени ПК. Оно взято в переменную
     Status "Работаю", "Загружаю информацию из SQL", laDarkBlue
     thisPCSQL.SQLLoad (HostName)    'в начальном модуле modStartup (Sub Main). Имя ПК передается методу класса SQLAuditData
-    Debug.Print "Загружена информация из SQL"
+    WriteToLog "Загружена информация из SQL"
 End If
    
     If isSQLAvailable = True Then 'делаем это только если стоит флажок "Сравнить с SQL"
@@ -847,7 +847,7 @@ End If
         Next
     End If
 tResetColor.Enabled = True
-Debug.Print "Готово"
+WriteToLog "Готово"
 End Function
 
 Private Sub cmdReport_Click()
@@ -923,7 +923,7 @@ If CLIArg <> "" Then
     Call LoadAuditData
     tDelayedReadData.Enabled = False
     Status "Готов", "Загружены данные из реестра Windows", laBlack
-    Debug.Print "Проверка SQL в отложенной записи данных"
+    WriteToLog "Проверка SQL в отложенной записи данных"
     'Проверка доступности SQL
         If isSQLAvailable = False Then
         SQLCheck.Visible = False
@@ -932,7 +932,7 @@ If CLIArg <> "" Then
         SQLCheck.Visible = False
         SqlBlock.Visible = False
         End If
-    Debug.Print "Завершена"
+    WriteToLog "Завершена"
 End If
 End Sub
 

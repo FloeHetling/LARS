@@ -43,9 +43,9 @@ Set oRegistry = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strCo
  
 If Err <> 0 Then
     If batch Then
-        EchoAndLog strComputer & ",,,,," & Err.Description
+        EchoAndLog strComputer & ",,,,," & Err.description
     Else
-        MsgBox "Failed. " & Err.Description, vbCritical + vbOKOnly, strComputer
+        MsgBox "Failed. " & Err.description, vbCritical + vbOKOnly, strComputer
         Exit Function
     End If
 End If
@@ -77,7 +77,7 @@ For Each skey In arSubKeys
                          If skey3 = "Control" Then
                               'If the Control sub-key exists then we should read the edid info
                               oRegistry.GetBinaryValue HKLM, sBaseKey3 & "Device Parameters\", "EDID", arrintEDID
-                           If VarType(arrintEDID) <> 8204 Then 'and If we don't find it...
+                           If varType(arrintEDID) <> 8204 Then 'and If we don't find it...
                                    strRawEDID = "EDID Not Available" 'store an "unavailable message
                               Else
                                    For Each ByteValue In arrintEDID 'otherwise conver the byte array from the registry into a string (for easier processing later)
@@ -283,8 +283,8 @@ For tmpctr = 0 To intMonitorCount - 1
              "Серийный номер: " & arrMonitorInfo(tmpctr, 3) & vbCrLf & _
              "VESA ID: " & arrMonitorInfo(tmpctr, 0) & vbCrLf & _
              "Дата производства: " & arrMonitorInfo(tmpctr, 2) & vbCrLf & vbCrLf
-             'debug.print".........." & "Device ID: " & arrMonitorInfo(tmpctr,1)
-             'debug.print".........." & "EDID Version: " & arrMonitorInfo(tmpctr,5)
+             'WriteToLog".........." & "Device ID: " & arrMonitorInfo(tmpctr,1)
+             'WriteToLog".........." & "EDID Version: " & arrMonitorInfo(tmpctr,5)
                  i = i + 1
 '         End If
      End If
@@ -308,6 +308,6 @@ End Function
  
 Sub EchoAndLog(message)
 'Echo output and write to log
-    Debug.Print message
+    WriteToLog message
 End Sub
 

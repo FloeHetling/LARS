@@ -13,7 +13,7 @@ Begin VB.Form frmSettings
    ScaleHeight     =   3840
    ScaleWidth      =   6315
    ShowInTaskbar   =   0   'False
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmdCancel 
       Caption         =   "Отмена"
       Height          =   375

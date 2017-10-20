@@ -23,17 +23,18 @@ Public AuditorOnly As Boolean, SendFormCallOnly As Boolean
 
 Public Function PopulateAuditData()
 On Error GoTo ERR_AUDITOR
-Debug.Print " "
-Debug.Print "================================================="
-Debug.Print Date & " " & Time & " - Отчет по исполнению модуля ЛАРС: Аудитор"
-Debug.Print "-------------------------------------------------"
-Debug.Print "Старт функции PopulateAuditData"
+WriteToLog " "
+WriteToLog "================================================="
+WriteToLog Date & " " & Time & " - Отчет по исполнению модуля ЛАРС: Аудитор"
+WriteToLog "-------------------------------------------------"
+WriteToLog "Старт функции PopulateAuditData"
 MailReport = "Отчет ЛАРС об отсутствующих параметрах на рабочей станции " & HostName & ":" & vbCrLf
 MRBaseString = MailReport
 On Error Resume Next
     Dim HW_query As String
     Dim HW_results As Object
     Dim HW_info As Object
+    Dim SQLErr As Integer
 HnS.Reset
 '' ОБРАЗЕЦ
 '    HW_query = "SELECT * FROM "
@@ -41,7 +42,7 @@ HnS.Reset
 '    For Each info In HW_results
 '        var = info.
 '    Next info
-Debug.Print "Беру информацию о CPU"
+WriteToLog "Беру информацию о CPU"
 ''CPUNAME
     HW_query = "SELECT * FROM Win32_Processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -49,7 +50,7 @@ Debug.Print "Беру информацию о CPU"
         HnS.CPUName = HW_info.name
     Next HW_info
     
-Debug.Print "Беру информацию о сокете"
+WriteToLog "Беру информацию о сокете"
 ''CPUSOCKET
     HW_query = "SELECT * FROM win32_processor"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -57,7 +58,7 @@ Debug.Print "Беру информацию о сокете"
         HnS.CPUSocket = SocketLibrary(HW_info.upgrademethod)
     Next HW_info
 
-Debug.Print "Опрашиваю тип памяти"
+WriteToLog "Опрашиваю тип памяти"
 ''RAMTYPE
     HW_query = "SELECT * FROM Win32_PhysicalMemory"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -65,7 +66,7 @@ Debug.Print "Опрашиваю тип памяти"
         HnS.RAMType = RAMLibrary(HW_info.MemoryType)
     Next HW_info
 
-Debug.Print "Опрашиваю ОЗУ"
+WriteToLog "Опрашиваю ОЗУ"
 'RAM
 ''RAMTOTALSLOT
     Dim ramSlotQuery As String, ramModuleQuery As String
@@ -79,7 +80,7 @@ Debug.Print "Опрашиваю ОЗУ"
         HnS.RAMTotalSlots = ramSlot.MemoryDevices
     Next ramSlot
 
-Debug.Print "Получаю статистику по слотам"
+WriteToLog "Получаю статистику по слотам"
 ''RAMSLOTSTAT
     ramModuleQuery = "SELECT * FROM win32_PhysicalMemory"
     RamModulesCount = 0
@@ -90,11 +91,11 @@ Debug.Print "Получаю статистику по слотам"
         RamModulesCount = RamModulesCount + 1
     Next ramModule
 
-Debug.Print "Получаю количество модулей"
+WriteToLog "Получаю количество модулей"
 ''RAMUSEDSLOTS
     HnS.RAMUsedSlots = RamModulesCount
 
-Debug.Print "Получаю количество ОЗУ"
+WriteToLog "Получаю количество ОЗУ"
 ''RAMVALUE
     HW_query = "SELECT * FROM Win32_ComputerSystem"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -102,7 +103,7 @@ Debug.Print "Получаю количество ОЗУ"
         HnS.RAMValue = toGB(HW_info.TotalPhysicalMemory) & " GB."
     Next HW_info
 
-Debug.Print "Запрашиваю модель материнской платы"
+WriteToLog "Запрашиваю модель материнской платы"
 ''MBNAME
     HW_query = "SELECT * FROM Win32_BaseBoard"
     Set HW_results = GetObject("Winmgmts:").ExecQuery(HW_query)
@@ -110,7 +111,7 @@ Debug.Print "Запрашиваю модель материнской платы"
         HnS.MBName = HW_info.Manufacturer & " " & HW_info.Product & " REV. " & HW_info.Version
     Next HW_info
 
-Debug.Print "Пытаюсь выяснить что за чипсет стоит на ПК"
+WriteToLog "Пытаюсь выяснить что за чипсет стоит на ПК"
 ''MBCHIPSET
     Dim isChipset As String
     HW_query = "SELECT * FROM Win32_PnPEntity"
@@ -121,7 +122,7 @@ Debug.Print "Пытаюсь выяснить что за чипсет стоит на ПК"
     Next HW_info
         HnS.MBChipset = DeviceEnum(isChipset, laChipset)
 
-Debug.Print "Опрашиваю видеокарту"
+WriteToLog "Опрашиваю видеокарту"
 ''GPUNAME
     Dim GPUQuery As String, GPUsCount As Integer
     Dim GPU As Object, GPUs As Object
@@ -134,11 +135,11 @@ Debug.Print "Опрашиваю видеокарту"
         GPUsCount = GPUsCount + 1
     Next GPU
 
-Debug.Print "Запрашиваю с мониторов строку производителя и расшифровываю ее"
+WriteToLog "Запрашиваю с мониторов строку производителя и расшифровываю ее"
 ''Monitors
     HnS.Monitors = GetMonitorInfo
 
-Debug.Print "Опрашиваю винчестеры"
+WriteToLog "Опрашиваю винчестеры"
 ''HDD
     Dim HDDQuery As String, HDDsQuery As String, HDDModel As String
     Dim HDDisk As Object, HDDisks As Object
@@ -160,16 +161,17 @@ Debug.Print "Опрашиваю винчестеры"
     HnS.HDDOverallSize = HDDOverallSpace
 
 If isSQLAvailable = True Then
-    Debug.Print " "
-    Debug.Print "Мне удалось подключиться к SQL"
+    WriteToLog " "
+    WriteToLog "Мне удалось подключиться к SQL"
     Dim SQLAPRequest As String, SQLRequest As String, HnSValue As String, HnSArgsIndex As Integer
     SQLRequest = "SELECT WSName FROM lars.dbo.hwinfo WHERE WSName = '" & HostName & "';"
     
     'Проверяем, есть ли в базе индекс с нашим именем ПК
     'Если нет - добавляем
-    If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
+    SQLErr = SQLExecute(SQLRequest, laRX, "WSName")
+    If (SQLErr = 3265) Or (SQLErr = 3021) Then
             SQLRequest = "INSERT INTO dbo.hwinfo (WSName) VALUES ('" & HostName & "');"
-            Debug.Print "Исполняю TRANSACT-SQL запрос: " & SQLRequest
+            WriteToLog "Исполняю TRANSACT-SQL запрос: " & SQLRequest
             SQLExecute SQLRequest, laTX
     End If
     
@@ -181,11 +183,11 @@ If isSQLAvailable = True Then
             HnSValue = CallByName(HnS, HnSArgs(HnSArgsIndex), VbGet)
         'Обновляем таблицу HWInfo - ставим значение SQLAPRequest равным HnSValue если выбранная запись содержит имя ПК
             SQLRequest = "UPDATE lars.dbo.hwinfo SET " & SQLAPRequest & " = '" & HnSValue & "' WHERE WSName = '" & HostName & "';"
-            Debug.Print "Записал в базу " & HnSValue
+            WriteToLog "Записал в базу " & HnSValue
             SQLExecute SQLRequest, laTX
     Next HnSArgsIndex
-Debug.Print "Закончил запись в SQL"
-Debug.Print " "
+WriteToLog "Закончил запись в SQL"
+WriteToLog " "
 End If
 
 
@@ -198,12 +200,12 @@ End If
     If isSQLAvailable = True Then
         'Читаем значения из реестра
         thisPC.RegLoad
-        Debug.Print "Загрузил значения из реестра"
+        WriteToLog "Загрузил значения из реестра"
         'Читаем значения из SQL
         thisPCSQL.SQLLoad (HostName)
-        Debug.Print "Загрузил значения из SQL"
-        Debug.Print "Проверяю соответствия"
-        Debug.Print " "
+        WriteToLog "Загрузил значения из SQL"
+        WriteToLog "Проверяю соответствия"
+        WriteToLog " "
         
         If thisPC.Company = RegNoData Then
             If thisPCSQL.Company = SqlNoData Then
@@ -294,51 +296,57 @@ End If
         Else
         thisPCSQL.OfficeOLPSerial = thisPC.OfficeOLPSerial
         End If
-        Debug.Print "Закончил проверять соответствия. Сформировал по ним отчет"
-        Debug.Print "-----------------------------------"
-        Debug.Print MailReport
-        Debug.Print "-----------------------------------"
-        Debug.Print " "
-        Debug.Print "Выполняю синхронизацию SQL и реестра"
+        WriteToLog "Закончил проверять соответствия. Сформировал по ним отчет"
+        WriteToLog "-----------------------------------"
+        WriteToLog MailReport
+        WriteToLog "-----------------------------------"
+        WriteToLog " "
+        WriteToLog "Выполняю синхронизацию SQL и реестра"
         thisPC.RegSave
         thisPCSQL.SQLSave (HostName)
-        Debug.Print "Синхронизация завершена"
-        Debug.Print " "
+        WriteToLog "Синхронизация завершена"
+        WriteToLog " "
     End If
     
 'Закончили сбор данных
 'Обрабатываем собранное и если есть чего - отправляем по почте
 
+WriteToLog "Сравниваем почтовую строку чтобы выяснить, надо ли отправлять отчет"
 
     If MailReport <> MRBaseString Then
+        WriteToLog "Отчет не пуст, пытаемся отправить его почтой"
         MailReport = MailReport & "<br><br>Отчет сформирован " & Time & _
                                     " " & Date & _
                                     "." & "<br>Советую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
         If AuditorOnly = True Then
-            Debug.Print "Запускаю отправку через сервер " & SMTPServer & ", порт " & SMTPPort
+            WriteToLog "Запускаю отправку через сервер " & SMTPServer & ", порт " & SMTPPort
             SendFormCallOnly = True
             Load frmReport
         End If
+    Else
+        WriteToLog "Отчет пуст. Идем дальше"
+        WriteToLog " "
     End If
-
-Debug.Print " "
-Debug.Print Date & " " & Time & "ОК: Функция PopulateAuditData исполнена"
 
     If AuditorOnly = False Then
         MailMessage = MailReport
             If MsgBox("Аудитор завершил процедуру." & vbCrLf & "Отправить результаты проверки?", vbQuestion & vbYesNo, LARSver) = vbYes Then
-                frmReport.Show
+                frmReport.Show vbModal
             Else
                 MsgBox "Вы можете выполнить отправку позже используя форму обратной связи." & vbCrLf & "Для этого выполните Инструменты - Сообщить о различиях" & vbCrLf & "или воспользуйтесь сочетанием клавиш Ctrl+E", vbInformation, LARSver
                 frmWriteAuditData.cmdReport.Enabled = True
             End If
     End If
+
+WriteToLog " "
+WriteToLog Date & " " & Time & " " & "ОК: Функция PopulateAuditData исполнена"
+If MailReport = MRBaseString And AuditorOnly = True Then End
 Exit Function
 
 ERR_AUDITOR:
-Debug.Print Date & " " & Time & "Во время работы Аудитора возникла ошибка " & Err.Number & ":"
-Debug.Print Err.description
-Debug.Print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+WriteToLog Date & " " & Time & "Во время работы Аудитора возникла ошибка " & Err.Number & ":"
+WriteToLog Err.description
+WriteToLog "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 End
 End Function
 
