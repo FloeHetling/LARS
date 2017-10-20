@@ -1,3 +1,4 @@
-
-*.frx
-*.vbw
+.log
+.frx
+.vbw
+.ini

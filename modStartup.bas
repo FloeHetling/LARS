@@ -96,8 +96,8 @@ Public CLIArg As String
 
 Public Function isSettingsIntegrityOK() As Boolean
 On Error GoTo INTEGRITYCHECK_ERROR
-Debug.Print " "
-Debug.Print "К работе приступил модуль проверки настроек программы"
+WriteToLog " "
+WriteToLog "К работе приступил модуль проверки настроек программы"
 Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr As Integer, Setting As Variant
 
 'Перечисляем, какие настройки из INI мы проверяем
@@ -114,9 +114,9 @@ Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr 
 'Проверяем, существует ли файл в целом
 'Если не существует - сразу ставим False и выходим из процедуры
     If CheckPath(LARSINIPath) <> True Then
-            Debug.Print " "
-            Debug.Print "Не найден файл настроек. Создаем пустой, чтобы модулю сохранения было куда писать настройки"
-            Debug.Print " "
+            WriteToLog " "
+            WriteToLog "Не найден файл настроек. Создаем пустой, чтобы модулю сохранения было куда писать настройки"
+            WriteToLog " "
             '''''Создаем структуру файла
             Dim iFileNo As Integer
             iFileNo = FreeFile
@@ -141,26 +141,26 @@ Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr 
 'Если на счетчике провалов есть хоть что-нибудь - целостность настроек явно нарушена.
     If SErr <> 0 Then
         isSettingsIntegrityOK = False
-        Debug.Print " "
-        Debug.Print "Модуль проверки настроек сообщил, что настройки не корректны."
-        Debug.Print "Упс."
-        Debug.Print "Их надо срочно исправить. Они глобальные! Поправьте файл INI в директории программы"
-        Debug.Print "Или запустите ЛАРС с параметром /edit. С любого ПК."
+        WriteToLog " "
+        WriteToLog "Модуль проверки настроек сообщил, что настройки не корректны."
+        WriteToLog "Упс."
+        WriteToLog "Их надо срочно исправить. Они глобальные! Поправьте файл INI в директории программы"
+        WriteToLog "Или запустите ЛАРС с параметром /edit. С любого ПК."
     Else
         isSettingsIntegrityOK = True
-        Debug.Print "Модуль проверки настроек проблем не обнаружил."
+        WriteToLog "Модуль проверки настроек проблем не обнаружил."
     End If
 
-Debug.Print "Завершение проверки настроек"
-Debug.Print "======================================================="
-Debug.Print " "
+WriteToLog "Завершение проверки настроек"
+WriteToLog "======================================================="
+WriteToLog " "
 Exit Function
 INTEGRITYCHECK_ERROR:
-Debug.Print " "
-Debug.Print "Модуль проверки корректности настроек сообщил о критической ошибке " & Err.Number & ":"
-Debug.Print Err.description
-Debug.Print "Продолжение работы программы невозможно. Логично, не так ли?"
-Debug.Print "======================================================="
+WriteToLog " "
+WriteToLog "Модуль проверки корректности настроек сообщил о критической ошибке " & Err.Number & ":"
+WriteToLog Err.description
+WriteToLog "Однозначная пасхалка. Чтобы вызвать эту ошибку - надо очень постараться"
+WriteToLog "======================================================="
 End
 End Function
 
@@ -183,9 +183,37 @@ CLIArg = Command$
         'Убираем лишние (нулевые) символы
         HostName = Left(HostName, dwLen)
 
-LARSLogFile = App.Path & "\PCLogs\" & HostName & ".log"
-LARSINIPath = App.Path & "\lars.ini"
 
+    If InStr(1, CLIArg, "/logpath") <> 0 Then
+            Dim logStrArray() As String, logStrArrayIdx As Integer
+                logStrArray = Split(CLIArg, " ")
+                For logStrArrayIdx = 0 To UBound(logStrArray)
+                    If logStrArray(logStrArrayIdx) = "/logpath" Then
+                        If logStrArrayIdx + 1 <= UBound(logStrArray) Then
+                            LARSLogFile = logStrArray(logStrArrayIdx + 1)
+                            LARSLogFile = Replace(LARSLogFile, "%20", " ") & "\" & HostName & ".log"
+                        End If
+                    End If
+                Next logStrArrayIdx
+    Else
+        LARSLogFile = App.Path & "\" & HostName & ".log"
+    End If
+
+
+    If InStr(1, CLIArg, "/inifile") <> 0 Then
+        Dim IniStrArray() As String, IniStrArrayIdx As Integer
+            IniStrArray = Split(CLIArg, " ")
+            For IniStrArrayIdx = 0 To UBound(IniStrArray)
+                If IniStrArray(IniStrArrayIdx) = "/inifile" Then
+                    If IniStrArrayIdx + 1 <= UBound(IniStrArray) Then
+                        LARSINIPath = IniStrArray(IniStrArrayIdx + 1)
+                        LARSINIPath = Replace(LARSINIPath, "%20", " ")
+                    End If
+                End If
+            Next IniStrArrayIdx
+    Else
+        LARSINIPath = App.Path & "\lars.ini"
+    End If
 
 ''записываем в глобальную переменную зазвание и версию ПО
     LARSver = App.ProductName & " " & _
@@ -202,16 +230,22 @@ Dim msgHelp As String
         "Без параметров - Запустить Аудитор в тихом режиме" & vbCrLf & _
         "/edit - Проверить настройки ПО и запустить Редактор" & vbCrLf & _
         "/wmi - Открыть окно прямой работы с WMI" & vbCrLf & _
-        "/? - Показать данное окно"
+        "/? - Показать данное окно" & vbCrLf & _
+        "--------------------------" & vbCrLf & vbCrLf & _
+        "Переопределение параметров:" & vbCrLf & vbCrLf & _
+        "/inifile - Путь до файла с настройками ПО *" & vbCrLf & _
+        "/logpath - Путь до папки для логов * **" & vbCrLf & vbCrLf & _
+        "* - путь без кавычек, пробелы заменены на ""%20""" & vbCrLf & _
+        "** - без слеша ( \ ) в конце пути к папке"
         
-        If (CLIArg <> "" And CLIArg <> "/edit" And CLIArg <> "/wmi") Or CLIArg = "/?" Then
+        If CLIArg = "/?" Then
                 MsgBox msgHelp, vbInformation, "Справка"
                 End
         End If
 
 
 ''Получаем в глобальную переменную путь до файла настроек
-WriteToLog "=============== 19.10.2017 13:18:47 ===============", StartNewReport
+WriteToLog "=============== " & Date & " " & Time & " ===============", StartNewReport
 WriteToLog "LARS APP LAUNCHED. Logfile Codepage is Windows-1251", ContinueReport
 WriteToLog "               VERSION " & App.Major & "." & App.Minor & ", build " & App.Revision & "               "
 WriteToLog "==================================================="
@@ -323,16 +357,20 @@ If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено -
     
 ''''''''''''''''''''''''''''''''ВСЕ ПАРАМЕТРЫ ДОЛЖНЫ БЫТЬ ЗАДАНЫ ДО ЭТОЙ СТРОКИ''''''''''''''''''''''''''''''''
 ''отправляем параметры коммандной строки в переменную и парсим их
-    Select Case CLIArg
-        
-        Case "/edit"
+
+Dim StartArgs As String
+If InStr(1, CLIArg, "/wmi") <> 0 Then StartArgs = "wmi"
+If InStr(1, CLIArg, "/edit") <> 0 Then StartArgs = "edit"
+
+    Select Case StartArgs
+        Case "edit"
             If IsUserAnAdmin() = 1 Then 'обращаемся к WinAPI для того чтобы узнать, достаточно ли прав пользователь
                 frmWriteAuditData.Show
             Else
                 MsgBox "Запустите ПО с правами администратора!", vbExclamation, LARSver 'если пользователь недостаточно прав
                 End                                                                     'то не стесняемся в выражениях и "ой, всё".
             End If
-        Case "/wmi"
+        Case "wmi"
         frmWMIQL.Show
         Case Else
             If IsUserAnAdmin() = 1 Then
@@ -347,8 +385,8 @@ If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено -
     End Select
 Exit Sub
 ERR_STARTUP:
-Debug.Print "На самом старте программы возникла ошибка " & Err.Number & ":"
-Debug.Print Err.description
-Debug.Print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+WriteToLog "На самом старте программы возникла ошибка " & Err.Number & ":"
+WriteToLog Err.description
+WriteToLog "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 End
 End Sub

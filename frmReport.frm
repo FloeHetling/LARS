@@ -95,7 +95,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
     SMTP.GetData strServerResponse
     
     ' Update our text box so we know whats going on.
-    Debug.Print strServerResponse
+    WriteToLog strServerResponse
     
     'Get server response code (first three symbols)
     strResponseCode = Left(strServerResponse, 3)
@@ -136,7 +136,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
                 "Subject:" & EmailSubject & vbLf & vbCrLf
                 
                 '''''
-                Debug.Print "Return-Path: <" & FromEmail & ">" & vbCrLf & _
+                WriteToLog "Return-Path: <" & FromEmail & ">" & vbCrLf & _
                 "Content-type: text/html; charset=UTF-8" & vbCrLf & _
                 "Priority: normal" & vbCrLf & _
                 "To: " & ToEmail & vbCrLf & _
@@ -149,12 +149,12 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
                 Dim strMessage  As String
                 
                 SMTP.SendData MailReport & vbCrLf & "." & vbCrLf
-                Debug.Print MailReport & vbCrLf & "." & vbCrLf
+                WriteToLog MailReport & vbCrLf & "." & vbCrLf
             Case MAIL_DOT
                 WinsockState = MAIL_QUIT
                 'Send QUIT command
                 SMTP.SendData "QUIT" & vbCrLf
-                Debug.Print "QUIT" & vbCrLf
+                WriteToLog "QUIT" & vbCrLf
             Case MAIL_QUIT
                 'Close the connection to the smtp server
                 SMTP.CloseSck
@@ -171,7 +171,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
             End If
         Else
             'if the message sent successfully, print it
-            Debug.Print "Отчет успешно отправлен"
+            WriteToLog "Отчет успешно отправлен"
             If SilentRun = False Then MsgBox "Отчет отправлен", vbOKOnly + vbInformation, LARSver
             Unload frmReport
             If AuditorOnly = True Then End
@@ -181,12 +181,14 @@ End Sub
 
 Private Sub SMTP_Error(ByVal Number As Integer, description As String, ByVal sCode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, CancelDisplay As Boolean)
     'Tell the user that an error occured.  There is more then the numbers below but this is a good starting point.
-    If Number = 10049 Then
-        MsgBox "Не могу отправить отчет о ПК - неправильный адрес сервера или порт!", vbCritical, LARSver
-    ElseIf Number = 10061 Then
-        MsgBox "Сервер почты отклонил мое сообщение. Отчет по ПК не отправлен!", vbCritical, LARSver
-    ElseIf Number <> 0 Then
-        MsgBox "Ошибка соединения с почтовым сервером: " & Number & vbCrLf & description & vbCrLf & vbCrLf & "Отчет по ПК не был отправлен." & vbCrLf & "Пожалуйста, сообщите об этой ошибке в отдел системного администрирования.", vbExclamation, LARSver
+    If SilentRun <> True Then
+        If Number = 10049 Then
+            MsgBox "Не могу отправить отчет о ПК - неправильный адрес сервера или порт!", vbCritical, LARSver
+        ElseIf Number = 10061 Then
+            MsgBox "Сервер почты отклонил мое сообщение. Отчет по ПК не отправлен!", vbCritical, LARSver
+        ElseIf Number <> 0 Then
+            MsgBox "Ошибка соединения с почтовым сервером: " & Number & vbCrLf & description & vbCrLf & vbCrLf & "Отчет по ПК не был отправлен." & vbCrLf & "Пожалуйста, сообщите об этой ошибке в отдел системного администрирования.", vbExclamation, LARSver
+        End If
     End If
     
     SMTP.CloseSck
