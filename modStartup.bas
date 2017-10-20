@@ -10,10 +10,13 @@ Option Explicit
     Public InfoBoxes() As String
     Public SQLBoxes() As String
     Public HnSArgs() As Variant
-    Public HostName As String
+    Public HostName As String, LARSINIPath As String, LARSLogFile As String
     Public enumSQLFields As Integer 'учет нулей в классе SQLAuditData
-    Public SilentRun As Boolean
+    Public SilentRun As Boolean, isAllSettingsProvided As Boolean
     
+'Перечисление параметров, читаемых из INI
+    Public INIParameters As New Collection
+
 'Почта
 ''Параметры Winsock
     Public Enum WinsockControlState
@@ -90,8 +93,86 @@ Option Explicit
 
 'Аргументы командной строки
 Public CLIArg As String
+
+Public Function isSettingsIntegrityOK() As Boolean
+On Error GoTo INTEGRITYCHECK_ERROR
+WriteToLog " "
+WriteToLog "К работе приступил модуль проверки настроек программы"
+Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr As Integer, Setting As Variant
+
+'Перечисляем, какие настройки из INI мы проверяем
+    With INIParameters
+                .Add "DataSource"
+                .Add "SMTPServer"
+                .Add "SMTPPort"
+                .Add "FromEmail"
+                .Add "ToEmail"
+                .Add "EmailServer"
+                .Add "EmailServerPort"
+    End With
+    
+'Проверяем, существует ли файл в целом
+'Если не существует - сразу ставим False и выходим из процедуры
+    If CheckPath(LARSINIPath) <> True Then
+            WriteToLog " "
+            WriteToLog "Не найден файл настроек. Создаем пустой, чтобы модулю сохранения было куда писать настройки"
+            WriteToLog " "
+            '''''Создаем структуру файла
+            Dim iFileNo As Integer
+            iFileNo = FreeFile
         
+            Open LARSINIPath For Output As #iFileNo
+            Print #iFileNo, ";Only Windows-1251 Codepage is allowed!"
+            Print #iFileNo, ";Если вы можете прочесть эту строку, ваша кодировка установлена правильно"
+            Print #iFileNo, ""
+            Close #iFileNo
+            '''''' И поехали дальше.
+        isSettingsIntegrityOK = False
+        Exit Function
+    End If
+     
+'Если из процедуры не вышли - проверяем каждый параметр из коллекции
+'При этом считаем провалы
+    SErr = 0
+    For Each Setting In INIParameters
+        If INIQuery("MAIN", Setting) = "" Then SErr = SErr + 1
+    Next Setting
+
+'Если на счетчике провалов есть хоть что-нибудь - целостность настроек явно нарушена.
+    If SErr <> 0 Then
+        isSettingsIntegrityOK = False
+        WriteToLog " "
+        WriteToLog "Модуль проверки настроек сообщил, что настройки не корректны."
+        WriteToLog "Упс."
+        WriteToLog "Их надо срочно исправить. Они глобальные! Поправьте файл INI в директории программы"
+        WriteToLog "Или запустите ЛАРС с параметром /edit. С любого ПК."
+    Else
+        isSettingsIntegrityOK = True
+        WriteToLog "Модуль проверки настроек проблем не обнаружил."
+    End If
+
+WriteToLog "Завершение проверки настроек"
+WriteToLog "======================================================="
+WriteToLog " "
+Exit Function
+INTEGRITYCHECK_ERROR:
+WriteToLog " "
+WriteToLog "Модуль проверки корректности настроек сообщил о критической ошибке " & Err.Number & ":"
+WriteToLog Err.description
+WriteToLog "Однозначная пасхалка. Чтобы вызвать эту ошибку - надо очень постараться"
+WriteToLog "======================================================="
+End
+End Function
+
+Public Function INIQuery(ByVal Div As String, ByVal Param As String) As String
+Dim INIReadResult As String
+Call fReadValue(LARSINIPath, Div, Param, "S", "", INIReadResult)
+INIQuery = INIReadResult
+End Function
+
 Sub Main()
+On Error GoTo ERR_STARTUP
+CLIArg = Command$
 ''получаем в глобальную переменную текущее имя ПК
     Dim dwLen As Long
         'Создаем буфер
@@ -102,14 +183,108 @@ Sub Main()
         'Убираем лишние (нулевые) символы
         HostName = Left(HostName, dwLen)
 
+
+    If InStr(1, CLIArg, "/logpath") <> 0 Then
+            Dim logStrArray() As String, logStrArrayIdx As Integer
+                logStrArray = Split(CLIArg, " ")
+                For logStrArrayIdx = 0 To UBound(logStrArray)
+                    If logStrArray(logStrArrayIdx) = "/logpath" Then
+                        If logStrArrayIdx + 1 <= UBound(logStrArray) Then
+                            LARSLogFile = logStrArray(logStrArrayIdx + 1)
+                            LARSLogFile = Replace(LARSLogFile, "%20", " ") & "\" & HostName & ".log"
+                        End If
+                    End If
+                Next logStrArrayIdx
+    Else
+        LARSLogFile = App.Path & "\" & HostName & ".log"
+    End If
+
+
+    If InStr(1, CLIArg, "/inifile") <> 0 Then
+        Dim IniStrArray() As String, IniStrArrayIdx As Integer
+            IniStrArray = Split(CLIArg, " ")
+            For IniStrArrayIdx = 0 To UBound(IniStrArray)
+                If IniStrArray(IniStrArrayIdx) = "/inifile" Then
+                    If IniStrArrayIdx + 1 <= UBound(IniStrArray) Then
+                        LARSINIPath = IniStrArray(IniStrArrayIdx + 1)
+                        LARSINIPath = Replace(LARSINIPath, "%20", " ")
+                    End If
+                End If
+            Next IniStrArrayIdx
+    Else
+        LARSINIPath = App.Path & "\lars.ini"
+    End If
+
+''записываем в глобальную переменную зазвание и версию ПО
+    LARSver = App.ProductName & " " & _
+                App.Major & "." & App.Minor & _
+                "." & App.Revision & " - " & _
+                App.CompanyName
+
+''Вывести справку если в аргументах какая-нибудь херня и закончить работу
+Dim msgHelp As String
+
+        msgHelp = _
+        LARSver & vbCrLf & vbCrLf & _
+        "Допустимые параметры командной строки:" & vbCrLf & vbCrLf & _
+        "Без параметров - Запустить Аудитор в тихом режиме" & vbCrLf & _
+        "/edit - Проверить настройки ПО и запустить Редактор" & vbCrLf & _
+        "/wmi - Открыть окно прямой работы с WMI" & vbCrLf & _
+        "/? - Показать данное окно" & vbCrLf & _
+        "--------------------------" & vbCrLf & vbCrLf & _
+        "Переопределение параметров:" & vbCrLf & vbCrLf & _
+        "/inifile - Путь до файла с настройками ПО *" & vbCrLf & _
+        "/logpath - Путь до папки для логов * **" & vbCrLf & vbCrLf & _
+        "* - путь без кавычек, пробелы заменены на ""%20""" & vbCrLf & _
+        "** - без слеша ( \ ) в конце пути к папке"
+        
+        If CLIArg = "/?" Then
+                MsgBox msgHelp, vbInformation, "Справка"
+                End
+        End If
+
+
+''Получаем в глобальную переменную путь до файла настроек
+WriteToLog "=============== " & Date & " " & Time & " ===============", StartNewReport
+WriteToLog "LARS APP LAUNCHED. Logfile Codepage is Windows-1251", ContinueReport
+WriteToLog "               VERSION " & App.Major & "." & App.Minor & ", build " & App.Revision & "               "
+WriteToLog "==================================================="
+WriteToLog "Читаю файл конфигурации " & LARSINIPath
+        
+isAllSettingsProvided = False
+
+'''''''''''''''''''''''РАБОТА С ФАЙЛОМ INI'''''''''''''''''''''''
+    'Исполнить если Attended режим - если интегрити получает фейл - исправляем ситуацию, иначе - ставим статус настроек в ОК и продолжаем
+    If CLIArg <> "" Then
+        If isSettingsIntegrityOK = False Then
+            MsgBox "Не найден файл с настройками ПО" & vbCrLf & _
+            "Либо не все настройки указаны корректно." & vbCrLf & vbCrLf & _
+            "Пожалуйста, заполните отсутствующие настройки!", vbExclamation, LARSver
+            frmSettings.Show vbModal
+            If isAllSettingsProvided = False Then End
+        Else
+            isAllSettingsProvided = True
+        End If
+    Else
+        If isSettingsIntegrityOK = False Then End
+    End If
+    
+    'Исполнить если UnAttended - если интегрити проходит успешно - ставим статус настроек в ок
+    If CLIArg = "" Then
+        If isSettingsIntegrityOK = True Then isAllSettingsProvided = True
+    End If
+If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено - прога не запустится!
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        
 ''Задаем параметры почты:
-        SMTPServer = "mail.zdravservice.ru"
-        SMTPPort = "25"
-        FromEmail = "ЛАРС Аудитор <larsmailer@zdravservice.ru>"
-        ToEmail = "Даниил Кузнецов <kuznecov_dm@zdravservice.ru>"
-        EmailServer = "mail.zdravservice.ru"
-        EmailServerPort = "25"
+        SMTPServer = INIQuery("MAIN", "SMTPServer")
+        SMTPPort = INIQuery("MAIN", "SMTPPort")
+        FromEmail = INIQuery("MAIN", "FromEmail")
+        ToEmail = INIQuery("MAIN", "ToEmail")
+        EmailServer = INIQuery("MAIN", "EmailServer")
+        EmailServerPort = INIQuery("MAIN", "EmailServerPort")
         EmailSubject = "ЛАРС: Отчет по аудиту рабочей станции """ & HostName & """"
+        SendFormCallOnly = False
 
 ''Задаем параметры командной строки
     CLIArg = Command$
@@ -123,19 +298,13 @@ Sub Main()
      
 ''Задаем глобальные параметры подключения к SQL
     SQLConnString = "Provider = SQLOLEDB.1;" & _
-                "Data Source=tcp:192.168.78.39,1433[oledb];" & _
+                "Data Source=" & INIQuery("MAIN", "DataSource") & "" & _
                 "Persist Security Info=False;" & _
-                "Initial Catalog=AIDA;" & _
-                "User ID=sa;" & _
+                "Initial Catalog=LARS;" & _
+                "User ID=lars;" & _
                 "Connect Timeout=2;" & _
-                "Password=happyness;"
+                "Password=XzlOq2JNh8;"
     isSQLChecked = False
-
-''записываем в глобальную переменную зазвание и версию ПО
-    LARSver = App.ProductName & " " & _
-                App.Major & "." & App.Minor & _
-                "." & App.Revision & " - " & _
-                App.CompanyName
 
 ''проверяем, запущен ли другой экземпляр
 'если да - прибиваем агент нахрен
@@ -188,17 +357,20 @@ Sub Main()
     
 ''''''''''''''''''''''''''''''''ВСЕ ПАРАМЕТРЫ ДОЛЖНЫ БЫТЬ ЗАДАНЫ ДО ЭТОЙ СТРОКИ''''''''''''''''''''''''''''''''
 ''отправляем параметры коммандной строки в переменную и парсим их
-CLIArg = Command$
-    Select Case CLIArg
-        
-        Case "/edit"
+
+Dim StartArgs As String
+If InStr(1, CLIArg, "/wmi") <> 0 Then StartArgs = "wmi"
+If InStr(1, CLIArg, "/edit") <> 0 Then StartArgs = "edit"
+
+    Select Case StartArgs
+        Case "edit"
             If IsUserAnAdmin() = 1 Then 'обращаемся к WinAPI для того чтобы узнать, достаточно ли прав пользователь
                 frmWriteAuditData.Show
             Else
                 MsgBox "Запустите ПО с правами администратора!", vbExclamation, LARSver 'если пользователь недостаточно прав
                 End                                                                     'то не стесняемся в выражениях и "ой, всё".
             End If
-        Case "/wmi"
+        Case "wmi"
         frmWMIQL.Show
         Case Else
             If IsUserAnAdmin() = 1 Then
@@ -211,4 +383,10 @@ CLIArg = Command$
                 End
             End If
     End Select
+Exit Sub
+ERR_STARTUP:
+WriteToLog "На самом старте программы возникла ошибка " & Err.Number & ":"
+WriteToLog Err.description
+WriteToLog "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+End
 End Sub

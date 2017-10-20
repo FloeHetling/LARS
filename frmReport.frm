@@ -1,26 +1,18 @@
 VERSION 5.00
-Object = "{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0"; "MSWINSCK.OCX"
 Begin VB.Form frmReport 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Отправить отчет о различиях (редактирование)"
-   ClientHeight    =   3585
+   ClientHeight    =   3570
    ClientLeft      =   11805
    ClientTop       =   5460
-   ClientWidth     =   7140
+   ClientWidth     =   7050
    Icon            =   "frmReport.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   3585
-   ScaleWidth      =   7140
+   ScaleHeight     =   3570
+   ScaleWidth      =   7050
    StartUpPosition =   2  'CenterScreen
-   Begin MSWinsockLib.Winsock SMTP 
-      Left            =   120
-      Top             =   3600
-      _ExtentX        =   741
-      _ExtentY        =   741
-      _Version        =   393216
-   End
    Begin VB.TextBox txtSubject 
       Height          =   375
       Left            =   120
@@ -61,9 +53,22 @@ Attribute VB_Exposed = False
 '            EmailServerPort As String
 Option Explicit
 
+Dim WithEvents SMTP As CSocketMaster
+Attribute SMTP.VB_VarHelpID = -1
+
 Private Sub Form_Load()
+Set SMTP = New CSocketMaster
 txtSubject.Text = EmailSubject
 txtBody.Text = Replace(MailMessage, "<br>", vbCrLf)
+
+    If SendFormCallOnly = True Then
+        Me.Visible = False
+        SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
+        WinsockState = MAIL_CONNECT
+    Else
+    Me.Visible = True
+    End If
+
 End Sub
 
 Private Sub txtSend_Click()
@@ -77,7 +82,7 @@ SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
 cmdSendEmailError:
     ' Show a detailed error message if needed
     If Err.Number <> 0 Then MsgBox "Ошибка отправки почты: " & vbCrLf & " Error Number: " & Err.Number & _
-    vbCrLf & "Error Description: " & Err.Description & ".", vbOKOnly + vbCritical, ""
+    vbCrLf & "Error Description: " & Err.description & ".", vbOKOnly + vbCritical, ""
 End Sub
 
 Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
@@ -90,7 +95,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
     SMTP.GetData strServerResponse
     
     ' Update our text box so we know whats going on.
-    Debug.Print strServerResponse
+    WriteToLog strServerResponse
     
     'Get server response code (first three symbols)
     strResponseCode = Left(strServerResponse, 3)
@@ -131,7 +136,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
                 "Subject:" & EmailSubject & vbLf & vbCrLf
                 
                 '''''
-                Debug.Print "Return-Path: <" & FromEmail & ">" & vbCrLf & _
+                WriteToLog "Return-Path: <" & FromEmail & ">" & vbCrLf & _
                 "Content-type: text/html; charset=UTF-8" & vbCrLf & _
                 "Priority: normal" & vbCrLf & _
                 "To: " & ToEmail & vbCrLf & _
@@ -144,19 +149,19 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
                 Dim strMessage  As String
                 
                 SMTP.SendData MailReport & vbCrLf & "." & vbCrLf
-                Debug.Print MailReport & vbCrLf & "." & vbCrLf
+                WriteToLog MailReport & vbCrLf & "." & vbCrLf
             Case MAIL_DOT
                 WinsockState = MAIL_QUIT
                 'Send QUIT command
                 SMTP.SendData "QUIT" & vbCrLf
-                Debug.Print "QUIT" & vbCrLf
+                WriteToLog "QUIT" & vbCrLf
             Case MAIL_QUIT
                 'Close the connection to the smtp server
-                SMTP.Close
+                SMTP.CloseSck
         End Select
     Else
         'Check if an error occured
-        SMTP.Close
+        SMTP.CloseSck
         If Not WinsockState = MAIL_QUIT Then
             'If yes then print the error
             If Left$(strServerResponse, 3) = 421 Then
@@ -166,7 +171,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
             End If
         Else
             'if the message sent successfully, print it
-            Debug.Print "Отчет успешно отправлен"
+            WriteToLog "Отчет успешно отправлен"
             If SilentRun = False Then MsgBox "Отчет отправлен", vbOKOnly + vbInformation, LARSver
             Unload frmReport
             If AuditorOnly = True Then End
@@ -174,16 +179,18 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
     End If
 End Sub
 
-Private Sub SMTP_Error(ByVal Number As Integer, Description As String, ByVal Scode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, CancelDisplay As Boolean)
+Private Sub SMTP_Error(ByVal Number As Integer, description As String, ByVal sCode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, CancelDisplay As Boolean)
     'Tell the user that an error occured.  There is more then the numbers below but this is a good starting point.
-    If Number = 10049 Then
-        MsgBox "Не могу отправить отчет о ПК - неправильный адрес сервера или порт!", vbCritical, LARSver
-    ElseIf Number = 10061 Then
-        MsgBox "Сервер почты отклонил мое сообщение. Отчет по ПК не отправлен!", vbCritical, LARSver
-    ElseIf Number <> 0 Then
-        MsgBox "Ошибка соединения с почтовым сервером: " & Number & vbCrLf & Description & vbCrLf & vbCrLf & "Отчет по ПК не был отправлен." & vbCrLf & "Пожалуйста, сообщите об этой ошибке в отдел системного администрирования.", vbExclamation, LARSver
+    If SilentRun <> True Then
+        If Number = 10049 Then
+            MsgBox "Не могу отправить отчет о ПК - неправильный адрес сервера или порт!", vbCritical, LARSver
+        ElseIf Number = 10061 Then
+            MsgBox "Сервер почты отклонил мое сообщение. Отчет по ПК не отправлен!", vbCritical, LARSver
+        ElseIf Number <> 0 Then
+            MsgBox "Ошибка соединения с почтовым сервером: " & Number & vbCrLf & description & vbCrLf & vbCrLf & "Отчет по ПК не был отправлен." & vbCrLf & "Пожалуйста, сообщите об этой ошибке в отдел системного администрирования.", vbExclamation, LARSver
+        End If
     End If
     
-    SMTP.Close
+    SMTP.CloseSck
     
 End Sub

@@ -40,7 +40,7 @@ End Property
 
 Public Property Get OfficeLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.OfficeLicenseModel
+'Syntax: WriteToLogX.OfficeLicenseModel
     OfficeLicenseModel = mvarOfficeLicenseModel
 End Property
 
@@ -80,7 +80,7 @@ End Property
 
 Public Property Get OfficeVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.OfficeVersion
+'Syntax: WriteToLogX.OfficeVersion
     OfficeVersion = GetOfficeVersion
 End Property
 
@@ -96,7 +96,7 @@ End Property
 
 Public Property Get WindowsOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.WindowsOLPSerial
+'Syntax: WriteToLogX.WindowsOLPSerial
     WindowsOLPSerial = mvarWindowsOLPSerial
 End Property
 
@@ -109,7 +109,7 @@ End Property
 
 Public Property Get OfficeOLPSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.OfficeOLPSerial
+'Syntax: WriteToLogX.OfficeOLPSerial
     OfficeOLPSerial = mvarOfficeOLPSerial
 End Property
 
@@ -123,7 +123,7 @@ End Property
 
 Public Property Get WindowsLicenseModel() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.WindowsLicenseModel
+'Syntax: WriteToLogX.WindowsLicenseModel
     WindowsLicenseModel = mvarWindowsLicenseModel
 End Property
 
@@ -139,7 +139,7 @@ End Property
 
 Public Property Get WindowsVersion() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.WindowsVersion
+'Syntax: WriteToLogX.WindowsVersion
     WindowsVersion = GetWindowsVersion
 End Property
 
@@ -155,7 +155,7 @@ End Property
 
 Public Property Get WSSerial() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.WSSerial
+'Syntax: WriteToLogX.WSSerial
     WSSerial = mvarWSSerial
 End Property
 
@@ -171,7 +171,7 @@ End Property
 
 Public Property Get WsName() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.WSName
+'Syntax: WriteToLogX.WSName
     WsName = HostName
 End Property
 
@@ -187,7 +187,7 @@ End Property
 
 Public Property Get Company() As String
 'used when retrieving value of a property, on the right side of an assignment.
-'Syntax: debug.printX.Company
+'Syntax: WriteToLogX.Company
     Company = mvarCompany
 End Property
 
@@ -215,10 +215,10 @@ Dim SQL As New ADODB.Connection 'ADODB Connection Object
 '' тоже реализуем с небольшой динамикой
 
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
-SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
-Debug.Print SQLRequest
+SQLRequest = "SELECT " & SQLAPRequest & " AS " & AuditParameter & " FROM lars.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+WriteToLog SQLRequest
     SQLData.Open SQLRequest, SQL, adOpenKeyset
-    GetSQLData = SQLData.Fields(AuditParameter).value
+    GetSQLData = SQLData.Fields(AuditParameter).Value
     SQL.Close
     Exit Function
     
@@ -229,12 +229,12 @@ End Function
 Private Function SQLWrite(ByVal AuditParameter As String, ByVal CurrentHostname As String, ByVal AuditValue As String) As Boolean
 Dim SQLAPRequest As String, SQLRequest As String
 SQLAPRequest = CallByName(Ru, AuditParameter, VbGet)
-SQLRequest = "SELECT [Сетевое имя] AS WSName FROM aida.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+SQLRequest = "SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = '" & CurrentHostname & "';"
     If (SQLExecute(SQLRequest, laRX, "WSName") = 3265) Or (SQLExecute(SQLRequest, laRX, "WSName") = 3021) Then
         SQLRequest = "INSERT INTO dbo.larspc ([Сетевое имя]) VALUES ('" & CurrentHostname & "');"
         SQLExecute SQLRequest, laTX
     Else
-        SQLRequest = "UPDATE aida.dbo.larspc SET " & SQLAPRequest & " = '" & AuditValue & "' WHERE [Сетевое имя] = '" & CurrentHostname & "';"
+        SQLRequest = "UPDATE lars.dbo.larspc SET " & SQLAPRequest & " = '" & AuditValue & "' WHERE [Сетевое имя] = '" & CurrentHostname & "';"
         SQLExecute SQLRequest, laTX
     End If
 End Function
@@ -252,7 +252,7 @@ End Function
 '        "Initial Catalog=AIDA;" & _
 '        "User ID=sa;" & _
 '        "Password=happyness;"
-'    debug.print"Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
+'    WriteToLog"Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:" & vbCrLf & SQLRequestString
 '    SQLData.Open SQLRequestString, SQL, adOpenKeyset
 '        If SQLMode = laRX Then
 '            SQLExecute = SQLData.Fields(ParameterToRead).Value
@@ -261,7 +261,7 @@ End Function
 '    Exit Function
 '
 'SQL_error:
-'debug.print"Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
+'WriteToLog"Ошибка SQL " & Err.Number & ":" & vbCrLf & Err.Description
 'SQLExecute = Err.Number
 'End Function
 
