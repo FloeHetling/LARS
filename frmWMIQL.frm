@@ -69,14 +69,6 @@ If tWQLRequest.Text <> "" And tWQLItem.Text <> "" Then
 End If
 End Sub
 
-Private Sub Form_Terminate()
-End
-End Sub
-
-Private Sub Form_Unload(Cancel As Integer)
-End
-End Sub
-
 Private Sub tWQLItem_Click()
 If tWQLItem.Text = "Введите имя параметра" Then tWQLItem.Text = ""
 End Sub

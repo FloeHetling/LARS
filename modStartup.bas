@@ -236,7 +236,10 @@ Dim msgHelp As String
         "/inifile - Путь до файла с настройками ПО *" & vbCrLf & _
         "/logpath - Путь до папки для логов * **" & vbCrLf & vbCrLf & _
         "* - путь без кавычек, пробелы заменены на ""%20""" & vbCrLf & _
-        "** - без слеша ( \ ) в конце пути к папке"
+        "** - без слеша ( \ ) в конце пути к папке" & vbCrLf & _
+        "--------------------------" & vbCrLf & vbCrLf & _
+        "Служебные функции:" & vbCrLf & vbCrLf & _
+        "/forcereport - принудительно отправить отчет почтой"
         
         If CLIArg = "/?" Then
                 MsgBox msgHelp, vbInformation, "Справка"
@@ -361,6 +364,7 @@ If isAllSettingsProvided = False Then End 'Если и после этого не все заполнено -
 Dim StartArgs As String
 If InStr(1, CLIArg, "/wmi") <> 0 Then StartArgs = "wmi"
 If InStr(1, CLIArg, "/edit") <> 0 Then StartArgs = "edit"
+If InStr(1, CLIArg, "/forcereport") <> 0 Then fWriteValue "HKLM", "Software\LARS", "Reported", "S", ""
 
     Select Case StartArgs
         Case "edit"

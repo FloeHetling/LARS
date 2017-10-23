@@ -1,0 +1,198 @@
+=============== 23.10.2017 12:58:13 ===============
+LARS APP LAUNCHED. Logfile Codepage is Windows-1251
+               VERSION 1.3, build 98               
+===================================================
+Читаю файл конфигурации D:\KuznetsovD\YandexDisk\YandexDisk\!GIT\LARS\lars.ini
+ 
+К работе приступил модуль проверки настроек программы
+Модуль проверки настроек проблем не обнаружил.
+Завершение проверки настроек
+=======================================================
+ 
+Грузим значения в ячейки
+Грузим значения в ячейки SQL
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT * FROM dbo.larspc
+ 
+МОДУЛЬ SQL СООБЩИЛ ОБ ОШИБКЕ:
+Ошибка SQL 3265:
+В коллекции не удается найти элемент, соответствующий требуемому имени или порядковому номеру.
+ 
+Модуль проверки SQL сообщил: УСПЕШНОЕ СОЕДИНЕНИЕ
+ 
+SELECT [Office License Model] AS OfficeLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Windows License Model] AS WindowsLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Юрлицо] AS Company FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Серийный номер] AS WSSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Офис] AS OfficeVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Office OLP] AS OfficeOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Windows] AS WindowsVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Windows OLP] AS WindowsOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Загружена информация из SQL
+Готово
+Готово
+Проверка SQL в отложенной записи данных
+Завершена
+ 
+=================================================
+23.10.2017 12:58:19 - Отчет по исполнению модуля ЛАРС: Аудитор
+-------------------------------------------------
+Старт функции PopulateAuditData
+Беру информацию о CPU
+Беру информацию о сокете
+Опрашиваю тип памяти
+Опрашиваю ОЗУ
+Получаю статистику по слотам
+Получаю количество модулей
+Получаю количество ОЗУ
+Запрашиваю модель материнской платы
+Пытаюсь выяснить что за чипсет стоит на ПК
+Опрашиваю видеокарту
+Запрашиваю с мониторов строку производителя и расшифровываю ее
+Опрашиваю винчестеры
+ 
+Мне удалось подключиться к SQL
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT WSName FROM lars.dbo.hwinfo WHERE WSName = 'WS0006';
+Записал в базу WS0006
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET WSNAME = 'WS0006' WHERE WSName = 'WS0006';
+Записал в базу Intel(R) Core(TM) i3-2100 CPU @ 3.10GHz
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET CPUNAME = 'Intel(R) Core(TM) i3-2100 CPU @ 3.10GHz' WHERE WSName = 'WS0006';
+Записал в базу Нет данных
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET RAMTYPE = 'Нет данных' WHERE WSName = 'WS0006';
+Записал в базу 4
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET RAMTOTALSLOTS = '4' WHERE WSName = 'WS0006';
+Записал в базу 2
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET RAMUSEDSLOTS = '2' WHERE WSName = 'WS0006';
+Записал в базу A1_DIMM0@4GB,A1_DIMM2@4GB
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET RAMSLOTSTAT = 'A1_DIMM0@4GB,A1_DIMM2@4GB' WHERE WSName = 'WS0006';
+Записал в базу 8 GB.
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET RAMVALUE = '8 GB.' WHERE WSName = 'WS0006';
+Записал в базу MSI H61M-P23 (MS-7680) REV. 3.0
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET MBNAME = 'MSI H61M-P23 (MS-7680) REV. 3.0' WHERE WSName = 'WS0006';
+Записал в базу Intel(R) 6 Series/C200 Series Chipset 
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET MBCHIPSET = 'Intel(R) 6 Series/C200 Series Chipset ' WHERE WSName = 'WS0006';
+Записал в базу Intel(R) HD Graphics
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET GPUNAME = 'Intel(R) HD Graphics' WHERE WSName = 'WS0006';
+Записал в базу Монитор A)
+Модель: S20B300
+Серийный номер: HLNC100272
+VESA ID: SAM
+Дата производства: 1/2012
+
+
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET MONITORS = 'Монитор A)
+Модель: S20B300
+Серийный номер: HLNC100272
+VESA ID: SAM
+Дата производства: 1/2012
+
+' WHERE WSName = 'WS0006';
+Записал в базу ST500DM002-1BD142@466GB,WDC WD5000AAKX-001CA0@466GB
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET HDD = 'ST500DM002-1BD142@466GB,WDC WD5000AAKX-001CA0@466GB' WHERE WSName = 'WS0006';
+Записал в базу 2
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET HDDCOUNT = '2' WHERE WSName = 'WS0006';
+Записал в базу 932
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET HDDOVERALLSIZE = '932' WHERE WSName = 'WS0006';
+Записал в базу LGA1155
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.hwinfo SET CPUSOCKET = 'LGA1155' WHERE WSName = 'WS0006';
+Закончил запись в SQL
+ 
+Загрузил значения из реестра
+SELECT [Office License Model] AS OfficeLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Windows License Model] AS WindowsLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Юрлицо] AS Company FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Серийный номер] AS WSSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Офис] AS OfficeVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Office OLP] AS OfficeOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Windows] AS WindowsVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Windows OLP] AS WindowsOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Загрузил значения из SQL
+Проверяю соответствия
+ 
+Закончил проверять соответствия. Сформировал по ним отчет
+-----------------------------------
+Отчет ЛАРС об отсутствующих параметрах на рабочей станции WS0006:
+<br>Нет номера OLP Офиса
+-----------------------------------
+ 
+Выполняю синхронизацию SQL и реестра
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Office License Model] = 'OLP' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Windows License Model] = 'OLP' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Юрлицо] = 'ООО Здравсервис' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Сетевое имя] = 'WS0006' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Серийный номер] = 'WS0006' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Версия Офис] = 'Microsoft Office 2010' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Номер лицензии Office OLP] = '' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Версия Windows] = 'Windows 7 Professional x64' WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+UPDATE lars.dbo.larspc SET [Номер лицензии Windows OLP] = '60425441' WHERE [Сетевое имя] = 'WS0006';
+Синхронизация завершена
+ 
+Сравниваем почтовую строку чтобы выяснить, надо ли отправлять отчет
+Отчет не пуст, пытаемся отправить его почтой
+OK Subclass memory allocated at: 7751784
+OK Winsock service initiated
+ 
+23.10.2017 12:58:31 ОК: Функция PopulateAuditData исполнена

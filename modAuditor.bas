@@ -1,4 +1,4 @@
-Attribute VB_Name = "modAutoAwesome"
+Attribute VB_Name = "modAuditor"
 Option Explicit
 
 'Private Declare Function RegOpenKey Lib "advapi32.dll" Alias "RegOpenKeyA" (ByVal hKey As Long, ByVal lpSubKey As String, ByRef phkResult As Long) As Long
@@ -318,11 +318,36 @@ WriteToLog "Сравниваем почтовую строку чтобы выяснить, надо ли отправлять отчет"
         MailReport = MailReport & "<br><br>Отчет сформирован " & Time & _
                                     " " & Date & _
                                     "." & "<br>Советую поставить задачу на заполнение отсутствующих данных в ручном режиме!"
+        MailReport = Replace(MailReport, "<br>", vbCrLf)
         If AuditorOnly = True Then
             WriteToLog "Запускаю отправку через сервер " & SMTPServer & ", порт " & SMTPPort
-            SendFormCallOnly = True
-            Load frmReport
-        End If
+            
+            'Проверка существующего отчета
+                Dim Reported As String
+                Call fReadValue("HKLM", "Software\LARS", "Reported", "S", "", Reported)
+                
+                If Reported <> "" Then 'если значение пусто, т.е., если отчет еще не отправлялся
+                    If AuditorOnly = False Then 'при режиме редактора и прочих - спросить
+                        If MsgBox("Уже есть отправленный отчет от " & Reported & _
+                                    ". Повторить?", vbQuestion & vbYesNo, LARSver) = vbYes Then 'и если ответ утвердительный
+                            frmReport.Show vbModal                                              'то показать форму отправки. Модально.
+                        End If
+                    Else    'если включен режим аудитора - при отправленном отчете
+                        WriteToLog " "
+                        WriteToLog Date & " " & Time & " " & "ОК: Функция PopulateAuditData исполнена. Отчет отправлялся ранее."
+                        End  'Просто пишем что отчет отправлялся ранее и завершаем работу программы
+                    End If
+                
+                Else 'если строка Reported все же пустая
+                    If AuditorOnly = True Then 'в режиме аудитора
+                        SendFormCallOnly = True 'включаем тихий режим
+                        Load frmReport          'и грузим форму отчета с соответствующими процедурами
+                    Else                        'в режиме редактора и прочих
+                        frmReport.Show vbModal  'грузим форму отправки почты. модально.
+                    End If
+                End If
+                
+          End If
     Else
         WriteToLog "Отчет пуст. Идем дальше"
         WriteToLog " "
@@ -374,7 +399,7 @@ Public Function GetOfficeVersion() As String
 'Запрашиваем инфу о версии и выпуске Microsoft Office
     Dim OVerString As String, OVerIndex As Variant
     Dim OVerArray() As String
-        Call fReadValue("HKCR", "Word.Application\CurVer", "", "S", "NA", OVerString)
+        Call fReadValue("HKCR", "Word.Application\CurVer", "", "S", "не установлен", OVerString)
         OVerArray = Split(OVerString, ".")
         For Each OVerIndex In OVerArray
             If OVerIndex = Val(OVerIndex) Then OVerString = OVerIndex
@@ -396,6 +421,12 @@ Public Function GetOfficeVersion() As String
                 OVerString = "2010"
                 Case "15"
                 OVerString = "2013"
+                Case "16"
+                OVerString = "2016"
+                Case "17"
+                OVerString = "2019"
+                Case Else
+                OVerString = "365"
         End Select
         GetOfficeVersion = "Microsoft Office " & OVerString
 End Function
@@ -405,15 +436,35 @@ Public Function SocketLibrary(ByVal UpgradeMethodIndex As Integer) As String
 If UpgradeMethodIndex <> 0 Then UpgradeMethodIndex = UpgradeMethodIndex - 1
 'Дружно скажем большое спасибо дядюшке Гейтсу за то, что WMI НЕ ИМЕЕТ НИКАКИХ значений для прямого вывода строки типа сокета
 Dim arSocketTypes() As Variant
-arSocketTypes = Array("Other", "Unknown", "Daughter Board", "ZIF Socket", "Replacement/Piggy Back", "None", "LIF Socket", "Slot 1", "Slot 2", "370 Pin Socket", "Slot A", "Slot M", "Socket 423", "Socket A (Socket 462)", "Socket 478", "Socket 754", "Socket 940", "Socket 939", "Socket mPGA604", "Socket LGA771", "Socket LGA775", "Socket S1", "Socket AM2", "Socket F (1207)", "Socket LGA1366", "Socket G34", "Socket AM3", "Socket C32", "Socket LGA1156", "Socket LGA1567", "Socket PGA988A", "Socket BGA1288", "rPGA988B", "BGA1023", "BGA1224", "LGA1155", "LGA1356", "LGA2011", "Socket FS1", "Socket FS2", "Socket FM1", "Socket FM2", "Socket LGA2011-3", "Socket LGA1356-3", "Socket LGA1150", "Socket BGA1168", "Socket BGA1234", "Socket BGA1364", "Socket AM4", "Socket LGA1151", "Socket BGA1356", "Socket BGA1440", "Socket BGA1515")
-SocketLibrary = arSocketTypes(UpgradeMethodIndex)
+
+arSocketTypes = Array("Other", "Unknown", "Daughter Board", "ZIF Socket", _
+                        "Replacement/Piggy Back", "None", "LIF Socket", "Slot 1", _
+                        "Slot 2", "370 Pin Socket", "Slot A", "Slot M", "Socket 423", _
+                        "Socket A (Socket 462)", "Socket 478", "Socket 754", "Socket 940", _
+                        "Socket 939", "Socket mPGA604", "Socket LGA771", "Socket LGA775", _
+                        "Socket S1", "Socket AM2", "Socket F (1207)", "Socket LGA1366", _
+                        "Socket G34", "Socket AM3", "Socket C32", "Socket LGA1156", _
+                        "Socket LGA1567", "Socket PGA988A", "Socket BGA1288", "rPGA988B", _
+                        "BGA1023", "BGA1224", "LGA1155", "LGA1356", "LGA2011", "Socket FS1", _
+                        "Socket FS2", "Socket FM1", "Socket FM2", "Socket LGA2011-3", _
+                        "Socket LGA1356-3", "Socket LGA1150", "Socket BGA1168", "Socket BGA1234", _
+                        "Socket BGA1364", "Socket AM4", "Socket LGA1151", "Socket BGA1356", _
+                        "Socket BGA1440", "Socket BGA1515")
+
+If UpgradeMethodIndex <> 9 Then SocketLibrary = arSocketTypes(UpgradeMethodIndex) Else SocketLibrary = "LGA1156"
 End Function
 
 Public Function RAMLibrary(ByVal RAMIndex As Integer) As String
 'Дружно СНОВА скажем большое спасибо дядюшке Гейтсу за то, что WMI НЕ ИМЕЕТ НИКАКИХ значений для прямого вывода строки типа оперативки
 Dim arRAMTypes() As Variant
-arRAMTypes = Array("Unknown", "Other", "DRAM", "Synchronous DRAM", "Cache DRAM", "EDO", "EDRAM", "VRAM", "SRAM", "RAM", "ROM", "Flash", "EEPROM", "FEPROM", "EPROM", "CDRAM", "3DRAM", "SDRAM", "SGRAM", "RDRAM", "DDR", "DDR-2", "BRAM", "FB-DIMM", "DDR3", "FBD2", "DDR4", "LPDDR", "LPDDR2", "LPDDR3", "LPDDR4", "DMTF Reserved", "Vendor Reserved")
-If RAMIndex <> 0 Then RAMLibrary = arRAMTypes(RAMIndex) Else RAMLibrary = "DDR3"
+
+arRAMTypes = Array("Unknown", "Other", "DRAM", "Synchronous DRAM", "Cache DRAM", "EDO", _
+                    "EDRAM", "VRAM", "SRAM", "RAM", "ROM", "Flash", "EEPROM", "FEPROM", _
+                    "EPROM", "CDRAM", "3DRAM", "SDRAM", "SGRAM", "RDRAM", "DDR", "DDR-2", _
+                    "BRAM", "FB-DIMM", "DDR3", "FBD2", "DDR4", "LPDDR", "LPDDR2", "LPDDR3", _
+                    "LPDDR4", "DMTF Reserved", "Vendor Reserved")
+
+If RAMIndex <> 0 Then RAMLibrary = arRAMTypes(RAMIndex) Else RAMLibrary = "Нет данных"
 End Function
 
 Public Function DeviceEnum(ByVal CSVString As String, Optional ByVal HardwareType As laHardware) As String

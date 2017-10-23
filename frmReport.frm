@@ -59,7 +59,8 @@ Attribute SMTP.VB_VarHelpID = -1
 Private Sub Form_Load()
 Set SMTP = New CSocketMaster
 txtSubject.Text = EmailSubject
-txtBody.Text = Replace(MailMessage, "<br>", vbCrLf)
+txtBody.Text = MailMessage
+'txtBody.Text = Replace(MailMessage, "<br>", vbCrLf) 'без br
 
     If SendFormCallOnly = True Then
         Me.Visible = False
@@ -68,12 +69,12 @@ txtBody.Text = Replace(MailMessage, "<br>", vbCrLf)
     Else
     Me.Visible = True
     End If
-
 End Sub
 
 Private Sub txtSend_Click()
 EmailSubject = txtSubject.Text
-MailMessage = Replace(txtBody.Text, vbCrLf, "<br>")
+'MailMessage = Replace(txtBody.Text, vbCrLf, "<br>") без бр обойдемся
+MailMessage = txtBody.Text
 
 SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
     'reset the state so our sequence works right
@@ -81,7 +82,7 @@ SMTP.Connect Trim(SMTPServer), Val(SMTPPort)
     
 cmdSendEmailError:
     ' Show a detailed error message if needed
-    If Err.Number <> 0 Then MsgBox "Ошибка отправки почты: " & vbCrLf & " Error Number: " & Err.Number & _
+    If Err.Number <> 0 And AuditorOnly = False Then MsgBox "Ошибка отправки почты: " & vbCrLf & " Error Number: " & Err.Number & _
     vbCrLf & "Error Description: " & Err.description & ".", vbOKOnly + vbCritical, ""
 End Sub
 
@@ -172,6 +173,7 @@ Private Sub SMTP_DataArrival(ByVal bytesTotal As Long)
         Else
             'if the message sent successfully, print it
             WriteToLog "Отчет успешно отправлен"
+            fWriteValue "HKLM", "Software\LARS", "Reported", "S", Date$
             If SilentRun = False Then MsgBox "Отчет отправлен", vbOKOnly + vbInformation, LARSver
             Unload frmReport
             If AuditorOnly = True Then End
