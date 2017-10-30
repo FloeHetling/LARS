@@ -1,0 +1,36 @@
+=============== 30.10.2017 10:26:53 ===============
+LARS APP LAUNCHED. Logfile Codepage is Windows-1251
+               VERSION 1.3, build 99               
+===================================================
+Читаю файл конфигурации D:\KuznetsovD\YandexDisk\YandexDisk\!GIT\LARS\Projects\lars.ini
+ 
+К работе приступил модуль проверки настроек программы
+Модуль проверки настроек проблем не обнаружил.
+Завершение проверки настроек
+=======================================================
+ 
+Грузим значения в ячейки
+Грузим значения в ячейки SQL
+Исполняю функцию SQLAuditData SQLExecute. Строка исполнения:
+SELECT * FROM dbo.larspc
+ 
+МОДУЛЬ SQL СООБЩИЛ ОБ ОШИБКЕ:
+Ошибка SQL 3265:
+В коллекции не удается найти элемент, соответствующий требуемому имени или порядковому номеру.
+ 
+Модуль проверки SQL сообщил: УСПЕШНОЕ СОЕДИНЕНИЕ
+ 
+SELECT [Office License Model] AS OfficeLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Windows License Model] AS WindowsLicenseModel FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Юрлицо] AS Company FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Сетевое имя] AS WSName FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Серийный номер] AS WSSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Офис] AS OfficeVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Office OLP] AS OfficeOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Версия Windows] AS WindowsVersion FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+SELECT [Номер лицензии Windows OLP] AS WindowsOLPSerial FROM lars.dbo.larspc WHERE [Сетевое имя] = 'WS0006';
+Загружена информация из SQL
+Готово
+Готово
+Проверка SQL в отложенной записи данных
+Завершена
