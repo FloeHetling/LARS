@@ -365,6 +365,7 @@ Dim StartArgs As String
 If InStr(1, CLIArg, "/wmi") <> 0 Then StartArgs = "wmi"
 If InStr(1, CLIArg, "/edit") <> 0 Then StartArgs = "edit"
 If InStr(1, CLIArg, "/forcereport") <> 0 Then fWriteValue "HKLM", "Software\LARS", "Reported", "S", ""
+If InStr(1, CLIArg, "/sqled") <> 0 Then StartArgs = "sqled"
 
     Select Case StartArgs
         Case "edit"
@@ -376,6 +377,8 @@ If InStr(1, CLIArg, "/forcereport") <> 0 Then fWriteValue "HKLM", "Software\LARS
             End If
         Case "wmi"
         frmWMIQL.Show
+        Case "sqled"
+            frmSQLed.Show
         Case Else
             If IsUserAnAdmin() = 1 Then
                 AuditorOnly = True

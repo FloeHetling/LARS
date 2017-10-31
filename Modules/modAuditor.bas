@@ -426,7 +426,7 @@ Public Function GetOfficeVersion() As String
                 Case "17"
                 OVerString = "2019"
                 Case Else
-                OVerString = "365"
+                OVerString = "не установлен"
         End Select
         GetOfficeVersion = "Microsoft Office " & OVerString
 End Function
