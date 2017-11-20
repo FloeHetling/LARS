@@ -26,7 +26,7 @@ Begin VB.Form frmWriteAuditData
    Begin VB.ComboBox OffOLP 
       Height          =   315
       Left            =   2040
-      TabIndex        =   58
+      TabIndex        =   8
       Tag             =   "infobox,OfficeLicenseModel"
       Top             =   3840
       Width           =   2295
@@ -34,7 +34,7 @@ Begin VB.Form frmWriteAuditData
    Begin VB.ComboBox WinOLP 
       Height          =   315
       Left            =   2040
-      TabIndex        =   57
+      TabIndex        =   5
       Tag             =   "infobox,WindowsLicenseModel"
       Top             =   2400
       Width           =   2295
@@ -42,11 +42,11 @@ Begin VB.Form frmWriteAuditData
    Begin VB.PictureBox SQLCheck 
       BorderStyle     =   0  'Нет
       Height          =   4335
-      Left            =   4800
+      Left            =   4920
       Picture         =   "frmWriteAuditData.frx":27A2
       ScaleHeight     =   4335
       ScaleWidth      =   4575
-      TabIndex        =   56
+      TabIndex        =   58
       Top             =   360
       Visible         =   0   'False
       Width           =   4575
@@ -58,7 +58,7 @@ Begin VB.Form frmWriteAuditData
       Picture         =   "frmWriteAuditData.frx":41B8E
       ScaleHeight     =   4335
       ScaleWidth      =   4575
-      TabIndex        =   55
+      TabIndex        =   57
       Top             =   360
       Visible         =   0   'False
       Width           =   4575
@@ -68,7 +68,7 @@ Begin VB.Form frmWriteAuditData
       Height          =   4695
       Index           =   1
       Left            =   4680
-      TabIndex        =   24
+      TabIndex        =   35
       Top             =   120
       Width           =   4815
       Begin VB.Frame frWindows 
@@ -76,7 +76,7 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   1
          Left            =   120
-         TabIndex        =   39
+         TabIndex        =   50
          Top             =   1680
          Width           =   4575
          Begin VB.CommandButton cmdCopy 
@@ -84,7 +84,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   5
             Left            =   4080
-            TabIndex        =   51
+            TabIndex        =   15
             Top             =   960
             Width           =   375
          End
@@ -93,7 +93,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   4
             Left            =   4080
-            TabIndex        =   50
+            TabIndex        =   14
             Top             =   600
             Width           =   375
          End
@@ -102,7 +102,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   3
             Left            =   4080
-            TabIndex        =   49
+            TabIndex        =   13
             Top             =   240
             Width           =   375
          End
@@ -110,7 +110,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   5
             Left            =   1800
-            TabIndex        =   42
+            TabIndex        =   53
             Tag             =   "SQLbox,WindowsOLPSerial"
             Text            =   "Text6"
             Top             =   960
@@ -120,7 +120,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   4
             Left            =   1800
-            TabIndex        =   41
+            TabIndex        =   52
             Tag             =   "SQLbox,WindowsLicenseModel"
             Text            =   "Text5"
             Top             =   600
@@ -130,7 +130,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   3
             Left            =   1800
-            TabIndex        =   40
+            TabIndex        =   51
             Tag             =   "SQLbox,WindowsVersion"
             Text            =   "Text4"
             Top             =   240
@@ -141,7 +141,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   17
             Left            =   120
-            TabIndex        =   45
+            TabIndex        =   56
             Top             =   240
             Width           =   1575
          End
@@ -150,7 +150,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   16
             Left            =   120
-            TabIndex        =   44
+            TabIndex        =   55
             Top             =   600
             Width           =   1575
          End
@@ -159,7 +159,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   15
             Left            =   120
-            TabIndex        =   43
+            TabIndex        =   54
             Top             =   960
             Width           =   1575
          End
@@ -169,7 +169,7 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   1
          Left            =   120
-         TabIndex        =   32
+         TabIndex        =   43
          Top             =   3120
          Width           =   4575
          Begin VB.CommandButton cmdCopy 
@@ -177,7 +177,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   8
             Left            =   4080
-            TabIndex        =   54
+            TabIndex        =   18
             Top             =   960
             Width           =   375
          End
@@ -186,7 +186,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   7
             Left            =   4080
-            TabIndex        =   53
+            TabIndex        =   17
             Top             =   600
             Width           =   375
          End
@@ -195,7 +195,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   6
             Left            =   4080
-            TabIndex        =   52
+            TabIndex        =   16
             Top             =   240
             Width           =   375
          End
@@ -203,7 +203,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   8
             Left            =   1800
-            TabIndex        =   35
+            TabIndex        =   46
             Tag             =   "SQLbox,OfficeOLPSerial"
             Text            =   "Text9"
             Top             =   960
@@ -213,7 +213,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   7
             Left            =   1800
-            TabIndex        =   34
+            TabIndex        =   45
             Tag             =   "SQLbox,OfficeLicenseModel"
             Text            =   "Text8"
             Top             =   600
@@ -223,7 +223,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   6
             Left            =   1800
-            TabIndex        =   33
+            TabIndex        =   44
             Tag             =   "SQLbox,OfficeVersion"
             Text            =   "Text7"
             Top             =   240
@@ -234,7 +234,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   14
             Left            =   120
-            TabIndex        =   38
+            TabIndex        =   49
             Top             =   240
             Width           =   1575
          End
@@ -243,7 +243,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   13
             Left            =   120
-            TabIndex        =   37
+            TabIndex        =   48
             Top             =   600
             Width           =   1575
          End
@@ -252,7 +252,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   12
             Left            =   120
-            TabIndex        =   36
+            TabIndex        =   47
             Top             =   960
             Width           =   1575
          End
@@ -262,7 +262,7 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   1
          Left            =   120
-         TabIndex        =   25
+         TabIndex        =   36
          Top             =   240
          Width           =   4575
          Begin VB.CommandButton cmdCopy 
@@ -270,7 +270,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   2
             Left            =   4080
-            TabIndex        =   48
+            TabIndex        =   12
             Top             =   960
             Width           =   375
          End
@@ -279,7 +279,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   1
             Left            =   4080
-            TabIndex        =   47
+            TabIndex        =   11
             Top             =   600
             Width           =   375
          End
@@ -288,7 +288,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   0
             Left            =   4080
-            TabIndex        =   46
+            TabIndex        =   10
             Top             =   240
             Width           =   375
          End
@@ -296,7 +296,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   2
             Left            =   1800
-            TabIndex        =   28
+            TabIndex        =   39
             Tag             =   "SQLbox,WSSerial"
             Text            =   "Text3"
             Top             =   960
@@ -306,7 +306,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   1
             Left            =   1800
-            TabIndex        =   27
+            TabIndex        =   38
             Tag             =   "SQLbox,WSName"
             Text            =   "Text2"
             Top             =   600
@@ -316,7 +316,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   0
             Left            =   1800
-            TabIndex        =   26
+            TabIndex        =   37
             Tag             =   "SQLbox,Company"
             Text            =   "Text1"
             Top             =   240
@@ -327,7 +327,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   11
             Left            =   120
-            TabIndex        =   31
+            TabIndex        =   42
             Top             =   240
             Width           =   1575
          End
@@ -336,7 +336,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   10
             Left            =   120
-            TabIndex        =   30
+            TabIndex        =   41
             Top             =   600
             Width           =   1575
          End
@@ -345,7 +345,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   9
             Left            =   120
-            TabIndex        =   29
+            TabIndex        =   40
             Top             =   960
             Width           =   1575
          End
@@ -356,7 +356,7 @@ Begin VB.Form frmWriteAuditData
       Height          =   4695
       Index           =   0
       Left            =   120
-      TabIndex        =   4
+      TabIndex        =   22
       Top             =   120
       Width           =   4455
       Begin VB.Frame frCommon 
@@ -364,14 +364,14 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   0
          Left            =   120
-         TabIndex        =   17
+         TabIndex        =   31
          Top             =   240
          Width           =   4215
          Begin VB.TextBox cbinfo 
             Height          =   315
             Index           =   0
             Left            =   1800
-            TabIndex        =   20
+            TabIndex        =   1
             Tag             =   "infobox,Company"
             Top             =   240
             Width           =   2295
@@ -380,7 +380,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   1
             Left            =   1800
-            TabIndex        =   19
+            TabIndex        =   2
             Tag             =   "infobox,WSName"
             Top             =   600
             Width           =   2295
@@ -389,7 +389,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   2
             Left            =   1800
-            TabIndex        =   18
+            TabIndex        =   3
             Tag             =   "infobox,WSSerial"
             Top             =   960
             Width           =   2295
@@ -399,7 +399,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   2
             Left            =   120
-            TabIndex        =   23
+            TabIndex        =   34
             Top             =   960
             Width           =   1575
          End
@@ -408,7 +408,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   1
             Left            =   120
-            TabIndex        =   22
+            TabIndex        =   33
             Top             =   600
             Width           =   1575
          End
@@ -417,7 +417,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   0
             Left            =   120
-            TabIndex        =   21
+            TabIndex        =   32
             Top             =   240
             Width           =   1575
          End
@@ -427,14 +427,14 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   0
          Left            =   120
-         TabIndex        =   11
+         TabIndex        =   27
          Top             =   3120
          Width           =   4215
          Begin VB.TextBox cbinfo 
             Height          =   315
             Index           =   6
             Left            =   1800
-            TabIndex        =   13
+            TabIndex        =   7
             Tag             =   "infobox,OfficeVersion"
             Top             =   240
             Width           =   2295
@@ -443,7 +443,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   315
             Index           =   8
             Left            =   1800
-            TabIndex        =   12
+            TabIndex        =   9
             Tag             =   "infobox,OfficeOLPSerial"
             Top             =   960
             Width           =   2295
@@ -453,7 +453,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   8
             Left            =   120
-            TabIndex        =   16
+            TabIndex        =   30
             Top             =   960
             Width           =   1575
          End
@@ -462,7 +462,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   7
             Left            =   120
-            TabIndex        =   15
+            TabIndex        =   29
             Top             =   600
             Width           =   1575
          End
@@ -471,7 +471,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   6
             Left            =   120
-            TabIndex        =   14
+            TabIndex        =   28
             Top             =   240
             Width           =   1575
          End
@@ -481,14 +481,14 @@ Begin VB.Form frmWriteAuditData
          Height          =   1455
          Index           =   0
          Left            =   120
-         TabIndex        =   5
+         TabIndex        =   23
          Top             =   1680
          Width           =   4215
          Begin VB.TextBox cbinfo 
             Height          =   315
             Index           =   3
             Left            =   1800
-            TabIndex        =   7
+            TabIndex        =   4
             Tag             =   "infobox,WindowsVersion"
             Top             =   240
             Width           =   2295
@@ -507,7 +507,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   5
             Left            =   120
-            TabIndex        =   10
+            TabIndex        =   26
             Top             =   960
             Width           =   1575
          End
@@ -516,7 +516,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   4
             Left            =   120
-            TabIndex        =   9
+            TabIndex        =   25
             Top             =   600
             Width           =   1575
          End
@@ -525,7 +525,7 @@ Begin VB.Form frmWriteAuditData
             Height          =   255
             Index           =   3
             Left            =   120
-            TabIndex        =   8
+            TabIndex        =   24
             Top             =   240
             Width           =   1575
          End
@@ -537,13 +537,13 @@ Begin VB.Form frmWriteAuditData
       Left            =   1320
       ScaleHeight     =   315
       ScaleWidth      =   8115
-      TabIndex        =   2
+      TabIndex        =   20
       Top             =   4920
       Width           =   8175
       Begin VB.Label stDescription 
          Height          =   255
          Left            =   120
-         TabIndex        =   3
+         TabIndex        =   21
          Top             =   45
          Width           =   6255
       End
@@ -561,7 +561,7 @@ Begin VB.Form frmWriteAuditData
          Caption         =   "Готов"
          Height          =   255
          Left            =   105
-         TabIndex        =   1
+         TabIndex        =   19
          Top             =   45
          Width           =   975
       End
@@ -592,7 +592,7 @@ Begin VB.Form frmWriteAuditData
       End
       Begin VB.Menu cmdRefreshFromSQL 
          Caption         =   "Обновить из базы"
-         Shortcut        =   ^R
+         Shortcut        =   ^{F5}
       End
       Begin VB.Menu delim2 
          Caption         =   "-"
@@ -610,6 +610,7 @@ Begin VB.Form frmWriteAuditData
       End
       Begin VB.Menu cmdPopulateAuditData 
          Caption         =   "Выполнить Аудитор"
+         Shortcut        =   +^{F5}
       End
       Begin VB.Menu delim3 
          Caption         =   "-"
