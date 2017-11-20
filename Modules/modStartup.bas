@@ -136,6 +136,7 @@ Dim SettingsArray() As String, ParamsArray() As String, SIndex As Integer, SErr 
     SErr = 0
     For Each Setting In INIParameters
         If INIQuery("MAIN", Setting) = "" Then SErr = SErr + 1
+        WriteToLog "Проверил " & Setting
     Next Setting
 
 'Если на счетчике провалов есть хоть что-нибудь - целостность настроек явно нарушена.
@@ -166,6 +167,7 @@ End Function
 
 Public Function INIQuery(ByVal Div As String, ByVal Param As String) As String
 Dim INIReadResult As String
+WriteToLog "Запрашиваю " & Param & " из раздела " & Div & " файла " & LARSINIPath
 Call fReadValue(LARSINIPath, Div, Param, "S", "", INIReadResult)
 INIQuery = INIReadResult
 End Function
@@ -366,6 +368,7 @@ If InStr(1, CLIArg, "/wmi") <> 0 Then StartArgs = "wmi"
 If InStr(1, CLIArg, "/edit") <> 0 Then StartArgs = "edit"
 If InStr(1, CLIArg, "/forcereport") <> 0 Then fWriteValue "HKLM", "Software\LARS", "Reported", "S", ""
 If InStr(1, CLIArg, "/sqled") <> 0 Then StartArgs = "sqled"
+If InStr(1, CLIArg, "/delete") <> 0 Then StartArgs = "cleanreg"
 
     Select Case StartArgs
         Case "edit"
@@ -379,6 +382,10 @@ If InStr(1, CLIArg, "/sqled") <> 0 Then StartArgs = "sqled"
         frmWMIQL.Show
         Case "sqled"
             frmSQLed.Show
+        Case "cleanreg"
+            fDeleteKey "HKLM", "SOFTWARE\", "LARS"
+            MsgBox "Реестр очищен", vbInformation, LARSver
+            End
         Case Else
             If IsUserAnAdmin() = 1 Then
                 AuditorOnly = True
