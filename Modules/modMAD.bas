@@ -23,11 +23,19 @@ Call fWriteValue("HKLM", "Software\LARS", AuditProp, "S", auditdata)
 End Function
 
 Public Function CheckPath(strPath As String) As Boolean
+On Error GoTo CP_ERR
+    WriteToLog "CheckPath: Проверяется доступность файла " & strPath
     If Dir$(strPath) <> "" Then
         CheckPath = True
     Else
         CheckPath = False
     End If
+
+Exit Function
+CP_ERR:
+WriteToLog "При проверке расположения файла возникла ошибка " & Err.Number
+WriteToLog Err.decription
+WriteToLog "Если ошибка пустая, возможно, программа просто не имеет прав на доступ к файлу."
 End Function
 
 Public Function SQLExecute(ByVal SQLRequestString As String, SQLMode As laSQLMode, Optional ByVal ParameterToRead As String) As Variant
