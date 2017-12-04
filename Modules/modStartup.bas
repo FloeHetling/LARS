@@ -160,7 +160,6 @@ INTEGRITYCHECK_ERROR:
 WriteToLog " "
 WriteToLog "Модуль проверки корректности настроек сообщил о критической ошибке " & Err.Number & ":"
 WriteToLog Err.description
-WriteToLog "Однозначная пасхалка. Чтобы вызвать эту ошибку - надо очень постараться"
 WriteToLog "======================================================="
 End
 End Function
